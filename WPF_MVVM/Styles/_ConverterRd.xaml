@@ -1,0 +1,19 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:cvt="clr-namespace:WPF_MVVM.Converters">
+    <cvt:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    <cvt:BoolToVisibilityConverter x:Key="BoolToVisibilityReverseConverter" FalseValue="Visible" TrueValue="Collapsed" />
+    <cvt:BoolReverseConverter x:Key="BoolReverseConverter" />
+    <cvt:BoolToNumberConverter x:Key="BoolToNumberConverter" />
+    <cvt:EnumMultiConverter x:Key="EnumMultiConverter" />
+    <cvt:SubStringFormatConverter x:Key="SubStringFormatConverter" />
+    <cvt:StringToNumberConverter x:Key="StringToNumberConverter" />
+    <cvt:DoubleGridLengthConverter x:Key="DoubleGridLengthConverter" />
+    <cvt:ArrayToSingleConverter x:Key="ArrayToSingleConverter" />
+    <cvt:StringToDateTimeConverter x:Key="StringToDateTimeConverter" />
+    <cvt:MenuItemCommandConverter x:Key="MenuItemCommandConverter" />
+    <cvt:NumberToBoolConverter x:Key="NumberToBoolConverter" />
+    <cvt:MultiBoolToVisibilityConverter x:Key="MultiBoolToVisibilityConverter" />
+    <cvt:MultiBoolToVisibilityConverter x:Key="MultiBoolToVisibilityReverseConverter" FalseValue="Visible" TrueValue="Collapsed" />
+    
+</ResourceDictionary>

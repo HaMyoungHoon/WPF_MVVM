@@ -1,0 +1,37 @@
+﻿<Application x:Class="WPF_MVVM.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:WPF_MVVM"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <md:BundledTheme BaseTheme="Dark" ColorAdjustment="{md:ColorAdjustment}" PrimaryColor="Grey" SecondaryColor="Green" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
+
+                <ResourceDictionary Source="/Styles/Colors/Color.Amber.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.Blue.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.BlueGrey.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.Brown.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.Cyan.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.DeepOrange.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.DeepPurple.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.Green.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.Grey.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.Indigo.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.LightBlue.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.LightGreen.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.Lime.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.Orange.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.Pink.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.Purple.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.Red.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.Teal.Rd.xaml" />
+                <ResourceDictionary Source="/Styles/Colors/Color.Yellow.Rd.xaml" />
+                
+                <ResourceDictionary Source="/Styles/_ConverterRd.xaml" />
+                <ResourceDictionary Source="/Styles/ButtonRd.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

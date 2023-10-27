@@ -1,0 +1,21 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="absoluteBack" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="absoluteFore" Color="#000000" />
+    <SolidColorBrush x:Key="defBack" Color="#F0F0F0" />
+    <SolidColorBrush x:Key="defFore" Color="#0F0F0F" />
+    <SolidColorBrush x:Key="defShadow" Color="#66000000" />
+    <SolidColorBrush x:Key="defBorderBrush" Color="#000000" />
+    <SolidColorBrush x:Key="defSelectBack" Color="#666666" />
+    <SolidColorBrush x:Key="defSelectFore" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="defRecvMsg" Color="{Binding Source={StaticResource Yellow2}, Path=Color}" />
+    <SolidColorBrush x:Key="defSendMsg" Color="{Binding Source={StaticResource Green2}, Path=Color}" />
+    <SolidColorBrush x:Key="defChatTime" Color="#979797" />
+
+    <SolidColorBrush x:Key="dgBackground" Color="{Binding Source={StaticResource Grey1}, Path=Color}" />
+    <SolidColorBrush x:Key="dgForeground" Color="{Binding Source={StaticResource Grey1F}, Path=Color}" />
+
+    <SolidColorBrush x:Key="btnSingleToggleOn" Color="{Binding Source={StaticResource Yellow1}, Path=Color}" />
+    <SolidColorBrush x:Key="btnMultiToggleOn" Color="#6175E8" />
+    <SolidColorBrush x:Key="btnToggleOff" Color="#DFDFDF" />
+</ResourceDictionary>

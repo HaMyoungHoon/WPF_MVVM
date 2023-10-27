@@ -1,0 +1,131 @@
+﻿<Window x:Class="WPF_MVVM.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF_MVVM"
+        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:mainDock="clr-namespace:WPF_MVVM.Controls.MainDock"
+        xmlns:bv="clr-namespace:WPF_MVVM.Behaviors"
+        xmlns:helper="clr-namespace:WPF_MVVM.Helpers"
+        mc:Ignorable="d"
+        Title="{Binding Title}" Height="850" Width="1200" MinHeight="850" MinWidth="1200" 
+        Foreground="{DynamicResource defFore}"
+        Background="{DynamicResource defBack}">
+    <Window.Resources>
+        <Style x:Key="LabelMainWindow" TargetType="{x:Type Label}" BasedOn="{StaticResource MaterialDesignLabel}">
+            <Setter Property="Background" Value="{DynamicResource defBack}" />
+            <Setter Property="Foreground" Value="{DynamicResource defFore}" />
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <DockPanel>
+            <Grid DockPanel.Dock="Top">
+                <StackPanel Orientation="Horizontal">
+                    <Button Width="70" Margin="15" Command="{Binding MenuButtonCommand}" CommandParameter="Logo"
+                            Background="Transparent" BorderBrush="Transparent" Padding="0">
+                        <Image>
+                            <Image.Style>
+                                <Style TargetType="{x:Type Image}">
+                                    <Setter Property="Source" Value="/Resources/Image/logo.png" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Source" Value="/Resources/Image/logo_hover.png" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                    </Button>
+                </StackPanel>
+            </Grid>
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                <Button Command="{Binding PageChangeCommand}" CommandParameter="HomePage" 
+                        Style="{StaticResource btnPage}">
+                    <StackPanel Orientation="Vertical">
+                        <md:PackIcon Kind="HomeOutline" HorizontalAlignment="Center" />
+                        <TextBlock Text="Home" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding PageChangeCommand}" CommandParameter="SettingPage" 
+                        Style="{StaticResource btnPage}">
+                    <StackPanel Orientation="Vertical">
+                        <md:PackIcon Kind="Settings" HorizontalAlignment="Center" />
+                        <TextBlock Text="Setting" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+            <Grid>
+                <DockingManager x:Name="dockManager" DocumentsSource="{Binding DockItemList}"
+                                ActiveContent="{Binding ActivePage, Mode=TwoWay}" Theme="{Binding SelectedTheme.Item2}">
+                    <DockingManager.LayoutItemTemplateSelector>
+                        <mainDock:MainWindowDataTemplateSelector>
+                            <mainDock:MainWindowDataTemplateSelector.Home>
+                                <DataTemplate>
+                                    <Frame Source="pack://application:,,,/Views/Home/HomePage.xaml">
+                                        <b:Interaction.Behaviors>
+                                            <bv:FrameBehavior ContentRendered="{Binding DataContext.FrameContentRenderedCommand, Source={x:Reference dockManager}}" />
+                                        </b:Interaction.Behaviors>
+                                    </Frame>
+                                </DataTemplate>
+                            </mainDock:MainWindowDataTemplateSelector.Home>
+                            <mainDock:MainWindowDataTemplateSelector.Setting>
+                                <DataTemplate>
+                                    <Frame Source="pack://application:,,,/Views/Setting/SettingPage.xaml">
+                                        <b:Interaction.Behaviors>
+                                            <bv:FrameBehavior ContentRendered="{Binding DataContext.FrameContentRenderedCommand, Source={x:Reference dockManager}}" />
+                                        </b:Interaction.Behaviors>
+                                    </Frame>
+                                </DataTemplate>
+                            </mainDock:MainWindowDataTemplateSelector.Setting>
+                        </mainDock:MainWindowDataTemplateSelector>
+                    </DockingManager.LayoutItemTemplateSelector>
+                    <DockingManager.LayoutItemContainerStyleSelector>
+                        <mainDock:MainWindowStyleSelector>
+                            <mainDock:MainWindowStyleSelector.Home>
+                                <Style TargetType="{x:Type LayoutItem}">
+                                    <Setter Property="Title" Value="{Binding Model.Title}" />
+                                    <Setter Property="ContentId" Value="{Binding Model.ContentID}" />
+                                    <Setter Property="IconSource" Value="{Binding Model.IconSource}" />
+                                    <Setter Property="CanClose" Value="{Binding Model.CanClose}" />
+                                    <Setter Property="CanFloat" Value="{Binding Model.CanFloat}" />
+                                    <Setter Property="CloseCommand" Value="{Binding Model.CloseCommand}" />
+                                </Style>
+                            </mainDock:MainWindowStyleSelector.Home>
+                            <mainDock:MainWindowStyleSelector.Setting>
+                                <Style TargetType="{x:Type LayoutItem}">
+                                    <Setter Property="Title" Value="{Binding Model.Title}" />
+                                    <Setter Property="ContentId" Value="{Binding Model.ContentID}" />
+                                    <Setter Property="IconSource" Value="{Binding Model.IconSource}" />
+                                    <Setter Property="CanClose" Value="{Binding Model.CanClose}" />
+                                    <Setter Property="CanFloat" Value="{Binding Model.CanFloat}" />
+                                    <Setter Property="CloseCommand" Value="{Binding Model.CloseCommand}" />
+                                </Style>
+                            </mainDock:MainWindowStyleSelector.Setting>
+                        </mainDock:MainWindowStyleSelector>
+                    </DockingManager.LayoutItemContainerStyleSelector>
+                    <LayoutRoot>
+                        <LayoutPanel>
+                            <LayoutDocumentPane />
+                        </LayoutPanel>
+                    </LayoutRoot>
+                </DockingManager>
+            </Grid>
+        </DockPanel>
+        <Border Background="{DynamicResource defShadow}" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center" Background="{DynamicResource defBack}" CornerRadius="5">
+                <StackPanel Width="100" Margin="10">
+                    <TextBlock Margin="0, 5" HorizontalAlignment="Center" Text="Loading" Foreground="{DynamicResource defFore}" />
+                    <ProgressBar Height="10" IsIndeterminate="True" />
+                </StackPanel>
+                <Border.Effect>
+                    <DropShadowEffect />
+                </Border.Effect>
+            </Border>
+        </Border>
+        <md:Snackbar md:SnackbarMessage.ContentMaxHeight="500" MessageQueue="{Binding NotifyQueue}"
+                     FontFamily="{DynamicResource MaterialDesignFont}" Background="{DynamicResource defBack}"
+                     Foreground="{DynamicResource defFore}" />
+    </Grid>
+</Window>

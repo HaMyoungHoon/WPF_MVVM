@@ -1,0 +1,107 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\Image\files.png" />
+    <None Remove="Resources\Image\logo.png" />
+    <None Remove="Resources\Image\logo_hover.png" />
+    <None Remove="Resources\Image\video.png" />
+    <None Remove="Styles\Images\DockAnchorableBottom.png" />
+    <None Remove="Styles\Images\DockAnchorableLeft.png" />
+    <None Remove="Styles\Images\DockAnchorableRight.png" />
+    <None Remove="Styles\Images\DockAnchorableTop.png" />
+    <None Remove="Styles\Images\DockDocumentAsAnchorableBottom.png" />
+    <None Remove="Styles\Images\DockDocumentAsAnchorableLeft.png" />
+    <None Remove="Styles\Images\DockDocumentAsAnchorableRight.png" />
+    <None Remove="Styles\Images\DockDocumentAsAnchorableTop.png" />
+    <None Remove="Styles\Images\DockDocumentBottom.png" />
+    <None Remove="Styles\Images\DockDocumentInside.png" />
+    <None Remove="Styles\Images\DockDocumentLeft.png" />
+    <None Remove="Styles\Images\DockDocumentRight.png" />
+    <None Remove="Styles\Images\DockDocumentTop.png" />
+    <None Remove="Styles\Images\DockPaneEmpty.png" />
+    <None Remove="Styles\Images\DockPaneLargeEmpty.png" />
+    <None Remove="Styles\Images\HTabGroup.png" />
+    <None Remove="Styles\Images\Locked.png" />
+    <None Remove="Styles\Images\PinAutoHide.png" />
+    <None Remove="Styles\Images\PinAutoHide_Black.png" />
+    <None Remove="Styles\Images\PinAutoHide_Dark.png" />
+    <None Remove="Styles\Images\PinClose.png" />
+    <None Remove="Styles\Images\PinClose_Black.png" />
+    <None Remove="Styles\Images\PinClose_Dark.png" />
+    <None Remove="Styles\Images\PinDocMenu.png" />
+    <None Remove="Styles\Images\PinDocMenu_Black.png" />
+    <None Remove="Styles\Images\PinMaximize.png" />
+    <None Remove="Styles\Images\PinMaximize_Black.png" />
+    <None Remove="Styles\Images\PinMaximize_Dark.png" />
+    <None Remove="Styles\Images\PinMenu.png" />
+    <None Remove="Styles\Images\PinMenu_Black.png" />
+    <None Remove="Styles\Images\PinMenu_Dark.png" />
+    <None Remove="Styles\Images\PinRestore.png" />
+    <None Remove="Styles\Images\PinRestore_Black.png" />
+    <None Remove="Styles\Images\PinRestore_Dark.png" />
+    <None Remove="Styles\Images\VTabGroup.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.72.1" />
+    <PackageReference Include="Dirkster.AvalonDock.Themes.Metro" Version="4.72.1" />
+    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.72.1" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="2.20.0" />
+    <PackageReference Include="MaterialDesignColors" Version="2.1.4" />
+    <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2088.41" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.75" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Image\files.png" />
+    <Resource Include="Resources\Image\logo.png" />
+    <Resource Include="Resources\Image\logo_hover.png" />
+    <Resource Include="Resources\Image\video.png" />
+    <Resource Include="Styles\Images\DockAnchorableBottom.png" />
+    <Resource Include="Styles\Images\DockAnchorableLeft.png" />
+    <Resource Include="Styles\Images\DockAnchorableRight.png" />
+    <Resource Include="Styles\Images\DockAnchorableTop.png" />
+    <Resource Include="Styles\Images\DockDocumentAsAnchorableBottom.png" />
+    <Resource Include="Styles\Images\DockDocumentAsAnchorableLeft.png" />
+    <Resource Include="Styles\Images\DockDocumentAsAnchorableRight.png" />
+    <Resource Include="Styles\Images\DockDocumentAsAnchorableTop.png" />
+    <Resource Include="Styles\Images\DockDocumentBottom.png" />
+    <Resource Include="Styles\Images\DockDocumentInside.png" />
+    <Resource Include="Styles\Images\DockDocumentLeft.png" />
+    <Resource Include="Styles\Images\DockDocumentRight.png" />
+    <Resource Include="Styles\Images\DockDocumentTop.png" />
+    <Resource Include="Styles\Images\DockPaneEmpty.png" />
+    <Resource Include="Styles\Images\DockPaneLargeEmpty.png" />
+    <Resource Include="Styles\Images\HTabGroup.png" />
+    <Resource Include="Styles\Images\Locked.png" />
+    <Resource Include="Styles\Images\PinAutoHide.png" />
+    <Resource Include="Styles\Images\PinAutoHide_Black.png" />
+    <Resource Include="Styles\Images\PinAutoHide_Dark.png" />
+    <Resource Include="Styles\Images\PinClose.png" />
+    <Resource Include="Styles\Images\PinClose_Black.png" />
+    <Resource Include="Styles\Images\PinClose_Dark.png" />
+    <Resource Include="Styles\Images\PinDocMenu.png" />
+    <Resource Include="Styles\Images\PinDocMenu_Black.png" />
+    <Resource Include="Styles\Images\PinMaximize.png" />
+    <Resource Include="Styles\Images\PinMaximize_Black.png" />
+    <Resource Include="Styles\Images\PinMaximize_Dark.png" />
+    <Resource Include="Styles\Images\PinMenu.png" />
+    <Resource Include="Styles\Images\PinMenu_Black.png" />
+    <Resource Include="Styles\Images\PinMenu_Dark.png" />
+    <Resource Include="Styles\Images\PinRestore.png" />
+    <Resource Include="Styles\Images\PinRestore_Black.png" />
+    <Resource Include="Styles\Images\PinRestore_Dark.png" />
+    <Resource Include="Styles\Images\VTabGroup.png" />
+  </ItemGroup>
+
+</Project>
