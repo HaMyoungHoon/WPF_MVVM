@@ -10,11 +10,13 @@
     </Page.Resources>
 
     <Grid>
-        <StackPanel Orientation="Horizontal">
-            <RadioButton IsChecked="{Binding IsDarkMode, Converter={StaticResource BoolReverseConverter}, Mode=TwoWay}"
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal">
+                <RadioButton IsChecked="{Binding IsDarkMode, Converter={StaticResource BoolReverseConverter}, Mode=TwoWay}"
                          Command="{Binding IsDarkModeCommand}" CommandParameter="{StaticResource FalseValue}" Content="Light" Foreground="{DynamicResource defFore}" />
-            <RadioButton IsChecked="{Binding IsDarkMode, Mode=TwoWay}"
+                <RadioButton IsChecked="{Binding IsDarkMode, Mode=TwoWay}"
                          Command="{Binding IsDarkModeCommand}" CommandParameter="{StaticResource TrueValue}" Content="Dark" Foreground="{DynamicResource defFore}" />
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Page>

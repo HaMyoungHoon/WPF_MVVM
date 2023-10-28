@@ -104,4 +104,8 @@
     <Resource Include="Styles\Images\VTabGroup.png" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Resources\Doc\DataGovAPI\" />
+  </ItemGroup>
+
 </Project>
