@@ -10,6 +10,8 @@ using System.Windows;
 using System.Windows.Markup;
 using WPF_MVVM.Bases;
 using WPF_MVVM.Interfaces;
+using WPF_MVVM.Interfaces.DataGov;
+using WPF_MVVM.Models.RestAPI.DataGov.WthrChartInfo;
 using WPF_MVVM.Services;
 using WPF_MVVM.Views.Home;
 using WPF_MVVM.Views.Popup;
@@ -44,8 +46,7 @@ namespace WPF_MVVM
 
         private static IServiceProvider ConfigureServices()
         {
-//            string weatherChartAPI = "http://apis.data.go.kr/1360000/WthrChartInfoService";
-
+            string debugUrl = "http://localhost:12800/WthrChartInfoService";
             return new ServiceCollection()
                 .AddTransient(typeof(MainWindowVM))
                 .AddTransient(typeof(NotifyWindowVM))
@@ -53,6 +54,12 @@ namespace WPF_MVVM
                 .AddTransient(typeof(SettingPageVM))
 
                 .AddSingleton<IWindowService, WindowService>(obj => new WindowService())
+
+//#if DEBUG
+//                .AddSingleton<IWthrChartInfoService, WthrChartInfoService>(obj => new(debugUrl))
+//#else
+                .AddSingleton<IWthrChartInfoService, WthrChartInfoService>(obj => new())
+//#endif
 
                 .BuildServiceProvider();
         }

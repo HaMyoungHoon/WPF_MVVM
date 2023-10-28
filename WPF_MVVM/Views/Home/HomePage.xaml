@@ -7,6 +7,9 @@
       mc:Ignorable="d">
 
     <Grid>
-        
+        <StackPanel Orientation="Vertical">
+            <Button Content="Test" Command="{Binding TestCommand}" />
+            <TextBox Text="{Binding TestString}" TextWrapping="Wrap" />
+        </StackPanel>
     </Grid>
 </Page>

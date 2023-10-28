@@ -113,6 +113,8 @@
                 </DockingManager>
             </Grid>
         </DockPanel>
+        <md:DialogHost CloseOnClickAway="True" DialogTheme="Inherit" DialogContent="{Binding DlgNotify}"
+                       IsOpen="{Binding IsDlgOpen}" OverlayBackground="{DynamicResource defShadow}" />
         <Border Background="{DynamicResource defShadow}" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
             <Border HorizontalAlignment="Center" VerticalAlignment="Center" Background="{DynamicResource defBack}" CornerRadius="5">
                 <StackPanel Width="100" Margin="10">
