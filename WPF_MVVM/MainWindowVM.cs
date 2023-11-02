@@ -17,6 +17,7 @@ using WPF_MVVM.Views.Home;
 using WPF_MVVM.Views.Popup;
 using WPF_MVVM.Controls.NotifyDialog;
 using WPF_MVVM.Views.Setting;
+using WPF_MVVM.Views.WthrChartInfo;
 
 namespace WPF_MVVM
 {
@@ -99,6 +100,7 @@ namespace WPF_MVVM
             switch (page)
             {
                 case nameof(HomePage): WeakReferenceMessenger.Default.Send(new NavigationMessage(nameof(HomePage)) { Sender = this }); break;
+                case nameof(WthrChartInfoPage): WeakReferenceMessenger.Default.Send(new NavigationMessage(nameof(WthrChartInfoPage)) { Sender = this }); break;
                 case nameof(SettingPage): WeakReferenceMessenger.Default.Send(new NavigationMessage(nameof(SettingPage)) { Sender = this }); break;
             }
         }
@@ -108,6 +110,7 @@ namespace WPF_MVVM
             switch (msg.Value)
             {
                 case nameof(HomePage): contentID = nameof(HomePageVM); break;
+                case nameof(WthrChartInfoPage): contentID = nameof(WthrChartInfoPageVM); break;
                 case nameof(SettingPage): contentID = nameof(SettingPageVM); break;
             }
 
@@ -141,6 +144,7 @@ namespace WPF_MVVM
             switch (msg.Value)
             {
                 case nameof(HomePage): DockItemList.Add(App.Current.Services.GetService(typeof(HomePageVM)) as HomePageVM ?? new HomePageVM() { Mother = this }); break;
+                case nameof(WthrChartInfoPage): DockItemList.Add(App.Current.Services.GetService(typeof(WthrChartInfoPageVM)) as WthrChartInfoPageVM ?? new WthrChartInfoPageVM() { Mother = this }); break;
                 case nameof(SettingPage): DockItemList.Add(App.Current.Services.GetService(typeof(SettingPageVM)) as SettingPageVM ?? new SettingPageVM() { Mother = this }); break;
             }
             ActivePage = DockItemList.Last();
@@ -227,6 +231,41 @@ namespace WPF_MVVM
             switch (msg.Value)
             {
                 case nameof(MainWindow): _windowService.CloseAll(); break;
+                case nameof(ContentsViewerWindow):
+                    {
+                        if (msg.NavigatedEventArgs is not string contentSource)
+                        {
+                            return;
+                        }
+                        var vm = _contentsViewerWindowVM.Find(x => x.ContentSoruce == contentSource);
+                        if (vm == null)
+                        {
+                            vm = new ContentsViewerWindowVM();
+                            _contentsViewerWindowVM.Add(vm);
+                        }
+                        else
+                        {
+                            if (_windowService.GetWindow(vm, contentSource) == null)
+                            {
+                                _contentsViewerWindowVM.Remove(vm);
+                                vm = new ContentsViewerWindowVM();
+                                _contentsViewerWindowVM.Add(vm);
+                            }
+                        }
+                        _windowService.ShowWindow<ContentsViewerWindow>(vm, msg.Close, msg.Hide, msg.Sender, msg.NavigatedEventArgs);
+                        if (msg.Close)
+                        {
+                            _contentsViewerWindowVM.Remove(vm);
+                        }
+                    }
+                    break;
+                case nameof(NotifyWindow):
+                    {
+                        var dataContext = App.Current.Services.GetService(typeof(NotifyWindowVM));
+                        var vm = _windowService.GetDataContext(dataContext) as NotifyWindowVM ?? dataContext as NotifyWindowVM ?? new();
+                        _windowService.ShowWindow<NotifyWindow>(vm, msg.Close, msg.Hide, msg.Sender, msg.NavigatedEventArgs);
+                    }
+                    break;
             }
 
         }

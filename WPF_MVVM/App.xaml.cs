@@ -16,6 +16,7 @@ using WPF_MVVM.Services;
 using WPF_MVVM.Views.Home;
 using WPF_MVVM.Views.Popup;
 using WPF_MVVM.Views.Setting;
+using WPF_MVVM.Views.WthrChartInfo;
 
 namespace WPF_MVVM
 {
@@ -46,11 +47,12 @@ namespace WPF_MVVM
 
         private static IServiceProvider ConfigureServices()
         {
-            string debugUrl = "http://localhost:12800/WthrChartInfoService";
+            string debugUrl = "http://localhost:12800";
             return new ServiceCollection()
                 .AddTransient(typeof(MainWindowVM))
                 .AddTransient(typeof(NotifyWindowVM))
                 .AddTransient(typeof(HomePageVM))
+                .AddTransient(typeof(WthrChartInfoPageVM))
                 .AddTransient(typeof(SettingPageVM))
 
                 .AddSingleton<IWindowService, WindowService>(obj => new WindowService())

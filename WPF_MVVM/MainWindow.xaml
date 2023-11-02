@@ -48,6 +48,13 @@
                         <TextBlock Text="Home" HorizontalAlignment="Center" />
                     </StackPanel>
                 </Button>
+                <Button Command="{Binding PageChangeCommand}" CommandParameter="WthrChartInfoPage"
+                        Style="{StaticResource btnPage}">
+                    <StackPanel Orientation="Vertical">
+                        <md:PackIcon Kind="WeatherCloudy" HorizontalAlignment="Center" />
+                        <TextBlock Text="Weather" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button>
                 <Button Command="{Binding PageChangeCommand}" CommandParameter="SettingPage" 
                         Style="{StaticResource btnPage}">
                     <StackPanel Orientation="Vertical">
@@ -70,6 +77,15 @@
                                     </Frame>
                                 </DataTemplate>
                             </mainDock:MainWindowDataTemplateSelector.Home>
+                            <mainDock:MainWindowDataTemplateSelector.WthrChartInfo>
+                                <DataTemplate>
+                                    <Frame Source="pack://application:,,,/Views/WthrChartInfo/WthrChartInfoPage.xaml">
+                                        <b:Interaction.Behaviors>
+                                            <bv:FrameBehavior ContentRendered="{Binding DataContext.FrameContentRenderedCommand, Source={x:Reference dockManager}}" />
+                                        </b:Interaction.Behaviors>
+                                    </Frame>
+                                </DataTemplate>
+                            </mainDock:MainWindowDataTemplateSelector.WthrChartInfo>
                             <mainDock:MainWindowDataTemplateSelector.Setting>
                                 <DataTemplate>
                                     <Frame Source="pack://application:,,,/Views/Setting/SettingPage.xaml">
@@ -93,6 +109,16 @@
                                     <Setter Property="CloseCommand" Value="{Binding Model.CloseCommand}" />
                                 </Style>
                             </mainDock:MainWindowStyleSelector.Home>
+                            <mainDock:MainWindowStyleSelector.WthrChartInfo>
+                                <Style TargetType="{x:Type LayoutItem}">
+                                    <Setter Property="Title" Value="{Binding Model.Title}" />
+                                    <Setter Property="ContentId" Value="{Binding Model.ContentID}" />
+                                    <Setter Property="IconSource" Value="{Binding Model.IconSource}" />
+                                    <Setter Property="CanClose" Value="{Binding Model.CanClose}" />
+                                    <Setter Property="CanFloat" Value="{Binding Model.CanFloat}" />
+                                    <Setter Property="CloseCommand" Value="{Binding Model.CloseCommand}" />
+                                </Style>
+                            </mainDock:MainWindowStyleSelector.WthrChartInfo>
                             <mainDock:MainWindowStyleSelector.Setting>
                                 <Style TargetType="{x:Type LayoutItem}">
                                     <Setter Property="Title" Value="{Binding Model.Title}" />

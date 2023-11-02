@@ -68,7 +68,7 @@ namespace WPF_MVVM.Views.Popup
             base.OnNavigated(sender, navigatedEventArgs);
             if (navigatedEventArgs is Dictionary<string, string> dict)
             {
-                Header = dict.ContainsKey("Header") ? dict["header"] : string.Empty;
+                Header = dict.ContainsKey("Header") ? dict["Header"] : string.Empty;
                 Message = dict.ContainsKey("Message") ? dict["Message"] : string.Empty;
                 _ = double.TryParse(dict.ContainsKey("During") ? dict["During"] : "0", out double during);
                 _during = during;

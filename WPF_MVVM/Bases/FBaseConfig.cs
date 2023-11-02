@@ -175,5 +175,21 @@ namespace WPF_MVVM.Bases
             cfg.SetBool("ADMIN,UI,IsDarkTheme", data);
             IsDarkTheme = data;
         }
+        public void SetNotifyType(string data)
+        {
+            FFileParser cfg = new(_filePath, FFileParser.FILE_TYPE.XML);
+            cfg.SetString("ADMIN,UI,NotifyOption", data);
+            NotifyOption = data;
+        }
+        public void SetNotifyDuration(int data)
+        {
+            if (data < 0 || data > 30)
+            {
+                data = 5;
+            }
+            FFileParser cfg = new(_filePath, FFileParser.FILE_TYPE.XML);
+            cfg.SetInt("ADMIN,UI,NotifyDuration", data);
+            NotifyDuration = data;
+        }
     }
 }

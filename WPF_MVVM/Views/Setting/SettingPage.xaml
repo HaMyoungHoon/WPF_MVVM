@@ -7,6 +7,10 @@
       mc:Ignorable="d" Background="{DynamicResource defBack}">
     <Page.Resources>
         <Style TargetType="{x:Type RadioButton}" BasedOn="{StaticResource MaterialDesignAccentRadioButton}" />
+        <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource MaterialDesignComboBox}">
+            <Setter Property="Padding" Value="2" />
+            <Setter Property="Foreground" Value="{DynamicResource defFore}" />
+        </Style>
     </Page.Resources>
 
     <Grid>
@@ -16,6 +20,23 @@
                          Command="{Binding IsDarkModeCommand}" CommandParameter="{StaticResource FalseValue}" Content="Light" Foreground="{DynamicResource defFore}" />
                 <RadioButton IsChecked="{Binding IsDarkMode, Mode=TwoWay}"
                          Command="{Binding IsDarkModeCommand}" CommandParameter="{StaticResource TrueValue}" Content="Dark" Foreground="{DynamicResource defFore}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="notify type" />
+                <ComboBox ItemsSource="{Binding NotifyOptions}" SelectedIndex="{Binding SelectedNotifyOptionIndex}"
+                          Width="100" Margin="5">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button Content="test" Command="{Binding NotifyTestCommand}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="notify duration" />
+                <TextBox Text="{Binding NotifyDuration}" Width="50" Foreground="{DynamicResource defFore}" />
+                <Button Content="Save" Command="{Binding NotifyDurationSaveCommand}" />
             </StackPanel>
         </StackPanel>
     </Grid>

@@ -1,0 +1,92 @@
+﻿<Page x:Class="WPF_MVVM.Views.WthrChartInfo.WthrChartInfoPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:WPF_MVVM.Views.WthrChartInfo"
+      mc:Ignorable="d">
+    <Page.Resources>
+        <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource MaterialDesignComboBox}">
+            <Setter Property="Padding" Value="2" />
+            <Setter Property="Foreground" Value="{DynamicResource defFore}" />
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" Content="ref Resources\Doc\DataGovAPI 기상청38_일기도_조회서비스_오픈API활용가이드.docx" />
+
+        <Grid Grid.Row="1" Margin="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+
+            <ComboBox Grid.Column="0" ItemsSource="{Binding ServiceItems}" SelectedIndex="{Binding SelectedServiceIndex}"
+                      Width="110" Margin="5">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <ComboBox Grid.Column="1" ItemsSource="{Binding Code1Items}" SelectedIndex="{Binding SelectedCode1Index}"
+                      Width="100" Margin="5">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <ComboBox Grid.Column="2" ItemsSource="{Binding Code2Items}" SelectedIndex="{Binding SelectedCode2Index}" IsEnabled="{Binding Code2Enable}"
+                      Width="100" Margin="5">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <ComboBox Grid.Column="3" ItemsSource="{Binding TimeItems}" SelectedIndex="{Binding SelectedTimeIndex}"
+                      Width="100" Margin="5" ToolTip="이거 최대 2일임.">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Button Grid.Column="4" Content="조회" Command="{Binding SearchCommand}" />
+        </Grid>
+
+        <ListView x:Name="lvContentImg" Grid.Row="2" ItemsSource="{Binding ContentImgList}">
+            <ListView.View>
+                <GridView x:Name="gvContentImg" VirtualizingPanel.IsVirtualizing="True">
+                    <GridView.ColumnHeaderContainerStyle>
+                        <Style TargetType="{x:Type GridViewColumnHeader}">
+                            <Setter Property="Padding" Value="2" />
+                            <Setter Property="Background" Value="{DynamicResource defBack}" />
+                        </Style>
+                    </GridView.ColumnHeaderContainerStyle>
+                    <GridViewColumn Width="400">
+                        <GridViewColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <Label Content="기상 이미지" />
+                            </DataTemplate>
+                        </GridViewColumn.HeaderTemplate>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <MediaElement Source="{Binding}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </Grid>
+</Page>

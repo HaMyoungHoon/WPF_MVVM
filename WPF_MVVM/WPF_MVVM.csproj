@@ -105,7 +105,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Resources\Doc\DataGovAPI\" />
+    <Folder Include="Models\DataGovAPI\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Resources\Doc\DataGovAPI\기상청38_일기도_조회서비스_오픈API활용가이드.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
