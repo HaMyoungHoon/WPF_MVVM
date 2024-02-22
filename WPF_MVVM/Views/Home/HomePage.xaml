@@ -7,9 +7,17 @@
       mc:Ignorable="d">
 
     <Grid>
-        <StackPanel Orientation="Vertical">
-            <Button Content="Test" Command="{Binding TestCommand}" />
-            <TextBox Text="{Binding TestString}" TextWrapping="Wrap" />
-        </StackPanel>
+        <ScrollViewer>
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Vertical">
+                    <Button Content="Async Test" Command="{Binding AsyncTestCommand}" />
+                    <TextBox Text="{Binding AsyncTestString}" TextWrapping="Wrap" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <Button Content="Test" Command="{Binding TestCommand}" />
+                    <TextBox Text="{Binding TestString}" TextWrapping="Wrap" />
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>

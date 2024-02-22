@@ -15,5 +15,6 @@
     <cvt:NumberToBoolConverter x:Key="NumberToBoolConverter" />
     <cvt:MultiBoolToVisibilityConverter x:Key="MultiBoolToVisibilityConverter" />
     <cvt:MultiBoolToVisibilityConverter x:Key="MultiBoolToVisibilityReverseConverter" FalseValue="Visible" TrueValue="Collapsed" />
-    
+    <cvt:IntConverter x:Key="IntConverter" />
+
 </ResourceDictionary>

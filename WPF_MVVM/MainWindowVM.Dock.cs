@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Controls;
 using WPF_MVVM.Bases;
 using WPF_MVVM.Views.Home;
+using WPF_MVVM.Views.ImageConverter;
 using WPF_MVVM.Views.Setting;
 using WPF_MVVM.Views.WthrChartInfo;
 
@@ -49,6 +50,16 @@ namespace WPF_MVVM
                     {
                         var findVM = DockItemList.FirstOrDefault(x => x.ContentID == nameof(WthrChartInfoPageVM));
                         if (findVM is WthrChartInfoPageVM vm)
+                        {
+                            child.DataContext = vm;
+                            vm.OnNavigated(this, null);
+                        }
+                    }
+                    break;
+                case nameof(ImageConverterPage):
+                    {
+                        var findVM = DockItemList.FirstOrDefault(x => x.ContentID == nameof(ImageConverterPageVM));
+                        if (findVM is ImageConverterPageVM vm)
                         {
                             child.DataContext = vm;
                             vm.OnNavigated(this, null);

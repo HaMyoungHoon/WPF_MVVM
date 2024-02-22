@@ -18,6 +18,7 @@ using WPF_MVVM.Views.Popup;
 using WPF_MVVM.Controls.NotifyDialog;
 using WPF_MVVM.Views.Setting;
 using WPF_MVVM.Views.WthrChartInfo;
+using WPF_MVVM.Views.ImageConverter;
 
 namespace WPF_MVVM
 {
@@ -101,6 +102,7 @@ namespace WPF_MVVM
             {
                 case nameof(HomePage): WeakReferenceMessenger.Default.Send(new NavigationMessage(nameof(HomePage)) { Sender = this }); break;
                 case nameof(WthrChartInfoPage): WeakReferenceMessenger.Default.Send(new NavigationMessage(nameof(WthrChartInfoPage)) { Sender = this }); break;
+                case nameof(ImageConverterPage): WeakReferenceMessenger.Default.Send(new NavigationMessage(nameof(ImageConverterPage)) { Sender = this }); break;
                 case nameof(SettingPage): WeakReferenceMessenger.Default.Send(new NavigationMessage(nameof(SettingPage)) { Sender = this }); break;
             }
         }
@@ -111,6 +113,7 @@ namespace WPF_MVVM
             {
                 case nameof(HomePage): contentID = nameof(HomePageVM); break;
                 case nameof(WthrChartInfoPage): contentID = nameof(WthrChartInfoPageVM); break;
+                case nameof(ImageConverterPage): contentID = nameof(ImageConverterPageVM); break;
                 case nameof(SettingPage): contentID = nameof(SettingPageVM); break;
             }
 
@@ -145,6 +148,7 @@ namespace WPF_MVVM
             {
                 case nameof(HomePage): DockItemList.Add(App.Current.Services.GetService(typeof(HomePageVM)) as HomePageVM ?? new HomePageVM() { Mother = this }); break;
                 case nameof(WthrChartInfoPage): DockItemList.Add(App.Current.Services.GetService(typeof(WthrChartInfoPageVM)) as WthrChartInfoPageVM ?? new WthrChartInfoPageVM() { Mother = this }); break;
+                case nameof(ImageConverterPage): DockItemList.Add(App.Current.Services.GetService(typeof(ImageConverterPageVM)) as ImageConverterPageVM ?? new ImageConverterPageVM() { Mother = this }); break;
                 case nameof(SettingPage): DockItemList.Add(App.Current.Services.GetService(typeof(SettingPageVM)) as SettingPageVM ?? new SettingPageVM() { Mother = this }); break;
             }
             ActivePage = DockItemList.Last();
