@@ -11,6 +11,8 @@ namespace WPF_MVVM.Models.ImageConverter
     {
         public int Index { get; set; }
         public string? FileName { get; set; }
-        public BitmapImage? Image { get; set; }
+        public string? FilePath { get; set; }
+        public BitmapSource? Image { get; set; }
+        public ImageFileType? ImageFileType { get; set; }
     }
 }
