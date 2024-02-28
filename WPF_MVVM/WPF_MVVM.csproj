@@ -9,9 +9,14 @@
 
   <ItemGroup>
     <None Remove="Resources\Image\files.png" />
+    <None Remove="Resources\Image\gif_sample1.gif" />
+    <None Remove="Resources\Image\gif_sample2.gif" />
+    <None Remove="Resources\Image\jpg_sample1.jpg" />
+    <None Remove="Resources\Image\jpg_sample2.jpg" />
     <None Remove="Resources\Image\logo.png" />
     <None Remove="Resources\Image\logo_hover.png" />
     <None Remove="Resources\Image\video.png" />
+    <None Remove="Resources\Video\mp4_sample1.mp4" />
     <None Remove="Styles\Images\DockAnchorableBottom.png" />
     <None Remove="Styles\Images\DockAnchorableLeft.png" />
     <None Remove="Styles\Images\DockAnchorableRight.png" />
@@ -50,6 +55,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\Image\gif_sample1.gif" />
+    <Resource Include="Resources\Image\gif_sample2.gif" />
+    <Resource Include="Resources\Image\jpg_sample1.jpg" />
+    <Resource Include="Resources\Image\jpg_sample2.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="Dirkster.AvalonDock" Version="4.72.1" />
     <PackageReference Include="Dirkster.AvalonDock.Themes.Metro" Version="4.72.1" />
@@ -70,6 +82,7 @@
     <Resource Include="Resources\Image\logo.png" />
     <Resource Include="Resources\Image\logo_hover.png" />
     <Resource Include="Resources\Image\video.png" />
+    <Resource Include="Resources\Video\mp4_sample1.mp4" />
     <Resource Include="Styles\Images\DockAnchorableBottom.png" />
     <Resource Include="Styles\Images\DockAnchorableLeft.png" />
     <Resource Include="Styles\Images\DockAnchorableRight.png" />

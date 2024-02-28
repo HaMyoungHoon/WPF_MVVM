@@ -1,0 +1,41 @@
+﻿<UserControl x:Class="WPF_MVVM.Controls.ImageViews.ImageViewUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WPF_MVVM.Controls.ImageViews"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" >
+    <UserControl.Resources>
+        <Style x:Key="defSlider" TargetType="Slider" />
+        <Style x:Key="hSlider" TargetType="Slider" BasedOn="{StaticResource MaterialDesignDiscreteHorizontalSlider}" />
+    </UserControl.Resources>
+    <Grid>
+        <StackPanel Orientation="Vertical" Margin="5" >
+            <Image x:Name="imgItem" HorizontalAlignment="Center" VerticalAlignment="Center" Height="100" 
+                   d:Source="../../Resources/Image/jpg_sample1.jpg" />
+            <MediaElement x:Name="mediaItem" HorizontalAlignment="Center" VerticalAlignment="Center" Height="100" ScrubbingEnabled="True" IsMuted="True"
+                          MouseDown="mediaItem_MouseDown" MediaOpened="mediaItem_MediaOpened" MediaFailed="mediaItem_MediaFailed" MediaEnded="mediaItem_MediaEnded"
+                          d:Source="../../Resources/Video/mp4_sample1.mp4" />
+            <Grid Margin="5" x:Name="gridPlayControl">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" x:Name="btnStart" Width="20" Height="20" Padding="0" 
+                        Click="btnStart_Click">
+                    <md:PackIcon x:Name="btnStartIcon" Kind="Pause" d:Kind="Play" />
+                </Button>
+                <Slider Grid.Column="1" x:Name="sliderTimeline" Margin="5, 0" VerticalAlignment="Center" Style="{StaticResource defSlider}" IsMoveToPointEnabled="True"
+                        MouseDown="sliderTimeline_MouseDown" MouseUp="sliderTimeline_MouseUp" ValueChanged="sliderTimeline_ValueChanged" />
+                <Button Grid.Column="2" x:Name="btnMute" Width="20" Height="20" Padding="0" 
+                        Click="btnMute_Click" >
+                    <md:PackIcon x:Name="btnMuteIcon" Kind="Mute" d:Kind="VolumeMedium" />
+                </Button>
+            </Grid>
+            <TextBlock x:Name="imgName" Width="100" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" TextAlignment="Center"
+                   d:Text="파일 이름" />
+        </StackPanel>
+    </Grid>
+</UserControl>

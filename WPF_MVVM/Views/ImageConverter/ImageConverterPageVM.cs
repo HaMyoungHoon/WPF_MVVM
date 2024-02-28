@@ -18,6 +18,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Windows.AI.MachineLearning;
 using WPF_MVVM.Bases;
 using WPF_MVVM.Helpers;
 using WPF_MVVM.Models.ImageConverter;
@@ -173,7 +174,6 @@ namespace WPF_MVVM.Views.ImageConverter
             return _convertAble;
         }
 
-        ImageHelper imageHelper = new();
         private BitmapSource GetBitmapImage(string filePath, out ImageFileType imageFileType)
         {
             imageFileType = ImageFileType.OTHER;
@@ -189,7 +189,7 @@ namespace WPF_MVVM.Views.ImageConverter
             }
             else if (IsGif(header))
             {
-                return imageHelper.GetComparedDrawingBitmapSource(filePath, 10);
+//                return imageHelper.GetComparedDrawingBitmapSource(filePath, 10);
                 imageFileType = ImageFileType.GIF;
                 var frameIndex = 10; // decoder.Frames.Count - 1;
                 BitmapSource ret;

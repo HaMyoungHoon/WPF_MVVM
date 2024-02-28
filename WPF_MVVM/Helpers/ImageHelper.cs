@@ -1,31 +1,35 @@
-﻿using SixLabors.ImageSharp;
+﻿using DocumentFormat.OpenXml.Office2010.PowerPoint;
+using DocumentFormat.OpenXml.Spreadsheet;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Gif;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace WPF_MVVM.Helpers
 {
-    // static으로 할까
-    internal class ImageHelper
+    internal static class ImageHelper
     {
-        public bool IsWebp(byte[] header)
+        public static bool IsWebp(byte[] header)
         {
             return header[0] == 0x52 && header[1] == 0x49 && header[2] == 0x46 && header[3] == 0x46 &&
                    header[8] == 0x57 && header[9] == 0x45 && header[10] == 0x42 && header[11] == 0x50;
         }
-        public bool IsGif(byte[] header)
+        public static bool IsGif(byte[] header)
         {
             var headerText = Encoding.ASCII.GetString(header);
             return headerText.StartsWith("GIF87a") || headerText.StartsWith("GIF89a");
         }
 
-        public BitmapImage GetBitmapImage(Uri uri)
+        public static BitmapImage GetBitmapImage(Uri uri)
         {
             BitmapImage ret = new();
             ret.BeginInit();
@@ -33,103 +37,140 @@ namespace WPF_MVVM.Helpers
             ret.EndInit();
             return ret;
         }
-        public BitmapImage GetBitmapImage(string path) 
+        public static BitmapImage GetBitmapImage(string path) 
         {
             return GetBitmapImage(new Uri(path, UriKind.RelativeOrAbsolute));
         }
-        public BitmapSource GetBitmapSource(Uri uri)
+        public static BitmapSource GetBitmapSource(Uri uri)
         {
             BitmapDecoder decoder = BitmapDecoder.Create(uri, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
             return decoder.Frames.First();
         }
-        public BitmapSource GetBitmapSource(string path)
+        public static BitmapSource GetBitmapSource(string path)
         {
             return GetBitmapSource(new Uri(path, UriKind.RelativeOrAbsolute));
         }
 
-        public GifBitmapDecoder GetGifBitmapDecoder(Uri uri)
+        public static GifBitmapDecoder GetGifBitmapDecoder(Uri uri)
         {
             GifBitmapDecoder ret = new(uri, BitmapCreateOptions.None, BitmapCacheOption.None);
             return ret;
         }
-        public GifBitmapDecoder GetGifBitmapDecoder(string path)
+        public static GifBitmapDecoder GetGifBitmapDecoder(string path)
         {
             return GetGifBitmapDecoder(new Uri(path, UriKind.RelativeOrAbsolute));
         }
-        public int GetGifFrameSize(GifBitmapDecoder decoder)
+        public static int GetGifFrameSize(GifBitmapDecoder decoder)
         {
             return decoder.Frames.Count;
         }
-        public int GetGifFrameSize(Uri uri)
+        public static int GetGifFrameSize(Uri uri)
         {
             return GetGifBitmapDecoder(uri).Frames.Count;
         }
-        public int GetGifFrameSize(string path)
+        public static int GetGifFrameSize(string path)
         {
             return GetGifBitmapDecoder(path).Frames.Count;
         }
-        public int GetGifFrameDelay(GifBitmapDecoder decoder, int frame = 0)
-        {
-            int searchFrame = frame;
-            int ret = 0;
-            if (frame < 0)
-            {
-                searchFrame = 0;
-            }
-            if (frame >= decoder.Frames.Count)
-            {
-                searchFrame = decoder.Frames.Count - 1;
-            }
-            if (decoder.Frames[searchFrame].Metadata is not BitmapMetadata metadata || !metadata.ContainsQuery("/grctlext/Delay"))
-            {
-                return ret;
-            }
-
-            if (metadata.GetQuery("/grctlext/Delay") is int temp)
-            {
-                ret = temp;
-            }
-
-            return ret;
-        }
-        public int GetGifFrameDelay(Uri uri, int frame = 0)
+        public static int GetGifFrameDelay(Uri uri, int frameIndex = 0)
         {
             var decoder = GetGifBitmapDecoder(uri);
             int ret = 0;
-            int searchFrame = frame;
-            if (frame < 0)
+            int searchFrame = frameIndex;
+            if (frameIndex < 0)
             {
                 searchFrame = 0;
             }
-            if (frame >= decoder.Frames.Count)
+            if (frameIndex >= decoder.Frames.Count)
             {
                 searchFrame = decoder.Frames.Count - 1;
             }
-            if (decoder.Frames[searchFrame].Metadata is not BitmapMetadata metadata || !metadata.ContainsQuery("/grctlext/Delay"))
+            if (decoder.Frames[searchFrame].Metadata is not BitmapMetadata metaData || !metaData.ContainsQuery("/grctlext/Delay"))
             {
                 return ret;
             }
 
-            if (metadata.GetQuery("/grctlext/Delay") is int temp)
-            {
-                ret = temp;
-            }
+            ret = metaData.GetQuery("/grctlext/Delay") as ushort? ?? 0;
+            ret *= 10;
 
             return ret;
         }
-        public int GetGifFrameDelay(string path, int frame = 0)
+        public static int GetGifFrameDelay(string path, int frameIndex = 0)
         {
-            return GetGifFrameDelay(new Uri(path, UriKind.RelativeOrAbsolute), frame);
+            return GetGifFrameDelay(new Uri(path, UriKind.RelativeOrAbsolute), frameIndex);
         }
-        public BitmapImage GetBitmapImage(GifBitmapDecoder decoder, int frame = 0)
+        public static int GetGifFrameDelay(GifBitmapDecoder decoder, int frameIndex = 0)
         {
-            BitmapImage ret = new();
-            int searchFrame = frame;
-            if (frame < 0)
+            int searchFrame = frameIndex;
+            int ret = 0;
+            if (frameIndex < 0)
             {
                 searchFrame = 0;
             }
-            if (frame >= decoder.Frames.Count)
+            if (frameIndex >= decoder.Frames.Count)
+            {
+                searchFrame = decoder.Frames.Count - 1;
+            }
+            if (decoder.Frames[searchFrame].Metadata is not BitmapMetadata metaData || !metaData.ContainsQuery("/grctlext/Delay"))
+            {
+                return ret;
+            }
+
+            ret = metaData.GetQuery("/grctlext/Delay") as ushort? ?? 0;
+            ret *= 10;
+
+            return ret;
+        }
+        /// <summary>
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns>Milliseconds</returns>
+        public static int GetGifFrameTotalDelay(Uri uri)
+        {
+            var decoder = GetGifBitmapDecoder(uri);
+            int ret = 0;
+            decoder.Frames.Select(x => x.Metadata).ToList().ForEach(y =>
+            {
+                if (y is BitmapMetadata metaData && metaData.ContainsQuery("/grctlext/Delay"))
+                {
+                    ret += (metaData.GetQuery("/grctlext/Delay") as ushort? ?? 0) * 10;
+                }
+            });
+            return ret;
+        }
+        /// <summary>
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns>Milliseconds</returns>
+        public static int GetGifFrameTotalDelay(string path)
+        {
+            return GetGifFrameTotalDelay(new Uri(path, UriKind.RelativeOrAbsolute));
+        }
+        /// <summary>
+        /// </summary>
+        /// <param name="decoder"></param>
+        /// <returns>Milliseconds</returns>
+        public static int GetGifFrameTotalDelay(GifBitmapDecoder decoder)
+        {
+            int ret = 0;
+            decoder.Frames.Select(x => x.Metadata).ToList().ForEach(y =>
+            {
+                if (y is BitmapMetadata metaData && metaData.ContainsQuery("/grctlext/Delay"))
+                {
+                    ret += (metaData.GetQuery("/grctlext/Delay") as ushort? ?? 0) * 10;
+                }
+            });
+            return ret;
+        }
+        public static BitmapImage GetBitmapImage(GifBitmapDecoder decoder, int frameIndex = 0)
+        {
+            BitmapImage ret = new();
+            int searchFrame = frameIndex;
+            if (frameIndex < 0)
+            {
+                searchFrame = 0;
+            }
+            if (frameIndex >= decoder.Frames.Count)
             {
                 searchFrame = decoder.Frames.Count - 1;
             }
@@ -146,16 +187,16 @@ namespace WPF_MVVM.Helpers
             }
             return ret;
         }
-        public BitmapImage GetGifBitmapImage(Uri uri, int frame = 0)
+        public static BitmapImage GetGifBitmapImage(Uri uri, int frameIndex = 0)
         {
             BitmapImage ret = new();
             var gifDecoder = GetGifBitmapDecoder(uri);
-            int searchFrame = frame;
-            if (frame < 0)
+            int searchFrame = frameIndex;
+            if (frameIndex < 0)
             {
                 searchFrame = 0;
             }
-            if (frame >= gifDecoder.Frames.Count)
+            if (frameIndex >= gifDecoder.Frames.Count)
             {
                 searchFrame = gifDecoder.Frames.Count - 1;
             }
@@ -172,65 +213,65 @@ namespace WPF_MVVM.Helpers
             }
             return ret;
         }
-        public BitmapImage GetGifBitmapImage(string path, int frame = 0)
+        public static BitmapImage GetGifBitmapImage(string path, int frameIndex = 0)
         {
-            return GetGifBitmapImage(new Uri(path, UriKind.RelativeOrAbsolute), frame);
+            return GetGifBitmapImage(new Uri(path, UriKind.RelativeOrAbsolute), frameIndex);
         }
-        public BitmapSource GetGifBitmapSource(GifBitmapDecoder decoder, int frame = 0)
+        public static BitmapSource GetGifBitmapSource(GifBitmapDecoder decoder, int frameIndex = 0)
         {
-            int searchFrame = frame;
-            if (frame < 0)
+            int searchFrame = frameIndex;
+            if (frameIndex < 0)
             {
                 searchFrame = 0;
             }
-            if (frame >= decoder.Frames.Count)
+            if (frameIndex >= decoder.Frames.Count)
             {
                 searchFrame = decoder.Frames.Count - 1;
             }
             return decoder.Frames[searchFrame];
         }
-        public BitmapSource GetGifBitmapSource(Uri uri, int frame = 0)
+        public static BitmapSource GetGifBitmapSource(Uri uri, int frameIndex = 0)
         {
             var gifDecoder = GetGifBitmapDecoder(uri);
-            int searchFrame = frame;
-            if (frame < 0)
+            int searchFrame = frameIndex;
+            if (frameIndex < 0)
             {
                 searchFrame = 0;
             }
-            if (frame >= gifDecoder.Frames.Count)
+            if (frameIndex >= gifDecoder.Frames.Count)
             {
                 searchFrame = gifDecoder.Frames.Count - 1;
             }
             return gifDecoder.Frames[searchFrame];
         }
-        public BitmapSource GetGifBitmapSource(string path, int frame = 0) 
+        public static BitmapSource GetGifBitmapSource(string path, int frameIndex = 0) 
         {
-            return GetGifBitmapSource(new Uri(path, UriKind.RelativeOrAbsolute), frame);
+            return GetGifBitmapSource(new Uri(path, UriKind.RelativeOrAbsolute), frameIndex);
         }
-        public BitmapSource GetComparedGifBitmapSource(Uri uri, int frame = 0, bool compareAll = false, bool skipMode = false)
+        public static BitmapSource GetComparedGifBitmapSource(Uri uri, int frameIndex = 0, bool compareAll = false, bool skipMode = false)
         {
             var gifDecoder = GetGifBitmapDecoder(uri);
             if (compareAll == true)
             {
-                return GetGifBitmapSourceCompareAll(gifDecoder, frame, skipMode);
+                return GetGifBitmapSourceCompareAll(gifDecoder, frameIndex, skipMode);
             }
             else
             {
-                return GetGifBitmapSourceCompare(gifDecoder, frame);
+                return GetGifBitmapSourceCompare(gifDecoder, frameIndex);
             }
         }
-        public BitmapSource GetComparedGifBitmapSource(string path, int frame = 0, bool compareAll = false, bool skipMode = false)
+        public static BitmapSource GetComparedGifBitmapSource(string path, int frameIndex = 0, bool compareAll = false, bool skipMode = false)
         {
-            return GetComparedGifBitmapSource(new Uri(path, UriKind.RelativeOrAbsolute), frame, compareAll, skipMode);
+            return GetComparedGifBitmapSource(new Uri(path, UriKind.RelativeOrAbsolute), frameIndex, compareAll, skipMode);
         }
-        private BitmapSource GetGifBitmapSourceCompareAll(GifBitmapDecoder decoder, int frame, bool skipMode)
+        private static BitmapSource GetGifBitmapSourceCompareAll(GifBitmapDecoder decoder, int frameIndex, bool skipMode)
         {
-            int searchFrame = frame;
-            if (frame <= 0)
+            int searchFrame = frameIndex;
+            if (frameIndex <= 0)
             {
                 return decoder.Frames[0];
             }
-            if (frame >= decoder.Frames.Count)
+            if (frameIndex >= decoder.Frames.Count)
             {
                 searchFrame = decoder.Frames.Count - 1;
                 return decoder.Frames[searchFrame];
@@ -270,14 +311,14 @@ namespace WPF_MVVM.Helpers
 
             return ret;
         }
-        private BitmapSource GetGifBitmapSourceCompare(GifBitmapDecoder decoder, int frame)
+        private static BitmapSource GetGifBitmapSourceCompare(GifBitmapDecoder decoder, int frameIndex)
         {
-            int searchFrame = frame;
-            if (frame <= 0)
+            int searchFrame = frameIndex;
+            if (frameIndex <= 0)
             {
                 return decoder.Frames[0];
             }
-            if (frame >= decoder.Frames.Count)
+            if (frameIndex >= decoder.Frames.Count)
             {
                 searchFrame = decoder.Frames.Count - 1;
                 return decoder.Frames[searchFrame];
@@ -311,7 +352,7 @@ namespace WPF_MVVM.Helpers
         /// </summary>
         /// <param name="path">file full path</param>
         /// <returns></returns>
-        public System.Drawing.Image GetDrawingImage(string path)
+        public static System.Drawing.Image GetDrawingImage(string path)
         {
             return System.Drawing.Image.FromFile(path);
         }
@@ -320,12 +361,12 @@ namespace WPF_MVVM.Helpers
         /// </summary>
         /// <param name="image"></param>
         /// <returns></returns>
-        public int GetDrawingImageFrameSize(System.Drawing.Image image)
+        public static int GetDrawingImageFrameSize(System.Drawing.Image image)
         {
             System.Drawing.Imaging.FrameDimension dimension = new(image.FrameDimensionsList[0]);
             return image.GetFrameCount(dimension);
         }
-        public int GetDrawingImageFrameSize(string path)
+        public static int GetDrawingImageFrameSize(string path)
         {
             int ret = 0;
             using (var image = System.Drawing.Image.FromFile(path))
@@ -339,35 +380,35 @@ namespace WPF_MVVM.Helpers
         /// 명시적으로 System.Drawing.Image dispose 해줘야 함.
         /// </summary>
         /// <param name="image"></param>
-        /// <param name="frame"></param>
+        /// <param name="frameIndex"></param>
         /// <returns></returns>
-        public System.Drawing.Bitmap GetDrawingBitmap(System.Drawing.Image image, int frame = 0)
+        public static System.Drawing.Bitmap GetDrawingBitmap(System.Drawing.Image image, int frameIndex = 0)
         {
             System.Drawing.Imaging.FrameDimension dimension = new(image.FrameDimensionsList[0]);
-            int searchFrame = frame;
-            if (frame < 0)
+            int searchFrame = frameIndex;
+            if (frameIndex < 0)
             {
                 searchFrame = 0;
             }
-            if (frame >= image.GetFrameCount(dimension))
+            if (frameIndex >= image.GetFrameCount(dimension))
             {
                 searchFrame = image.GetFrameCount(dimension) - 1;
             }
             image.SelectActiveFrame(dimension, searchFrame);
             return new(image);
         }
-        public System.Drawing.Bitmap GetDrawingBitmap(string path, int frame = 0)
+        public static System.Drawing.Bitmap GetDrawingBitmap(string path, int frameIndex = 0)
         {
             System.Drawing.Bitmap ret;
             using (System.Drawing.Image image = System.Drawing.Image.FromFile(path))
             {
                 System.Drawing.Imaging.FrameDimension dimension = new(image.FrameDimensionsList[0]);
-                int searchFrame = frame;
-                if (frame < 0)
+                int searchFrame = frameIndex;
+                if (frameIndex < 0)
                 {
                     searchFrame = 0;
                 }
-                if (frame >= image.GetFrameCount(dimension))
+                if (frameIndex >= image.GetFrameCount(dimension))
                 {
                     searchFrame = image.GetFrameCount(dimension) - 1;
                 }
@@ -376,18 +417,74 @@ namespace WPF_MVVM.Helpers
             }
             return ret;
         }
-        public BitmapSource GetDrawingBitmapSource(string path, int frame = 0)
+        /// <summary>
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="frameIndex"></param>
+        /// <returns>Milliseconds</returns>
+        public static int GetDrawingImageFrameDelay(string path, int frameIndex = 0)
+        {
+            int ret = 0;
+            using (System.Drawing.Image img = System.Drawing.Image.FromFile(path))
+            {
+                FrameDimension dimension = new(img.FrameDimensionsList[0]);
+                int searchFrame = frameIndex;
+                var frameCount = img.GetFrameCount(dimension);
+                if (frameCount < 0)
+                {
+                    searchFrame = 0;
+                }
+                if (frameIndex >= img.GetFrameCount(dimension))
+                {
+                    searchFrame = img.GetFrameCount(dimension) - 1;
+                }
+                img.SelectActiveFrame(dimension, searchFrame);
+                var propertyItem = img.GetPropertyItem(0x5100);
+                if (propertyItem != null && propertyItem.Type == 4)
+                {
+                    if (propertyItem.Value != null)
+                    {
+                        ret = BitConverter.ToUInt16(propertyItem.Value, 0) * 10;
+                    }
+                }
+            }
+            return ret;
+        }
+        /// <summary>
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns>Milliseconds</returns>
+        public static int GetDrawingImageFrameTotalDelay(string path)
+        {
+            int ret = 0;
+            using (System.Drawing.Image img = System.Drawing.Image.FromFile(path))
+            {
+                FrameDimension dimension = new(img.FrameDimensionsList[0]);
+                var frameCount = img.GetFrameCount(dimension);
+                img.SelectActiveFrame(dimension, 0);
+                var propertyItem = img.GetPropertyItem(0x5100);
+                if (propertyItem != null && propertyItem.Type == 4)
+                {
+                    if (propertyItem.Value != null)
+                    {
+                        ret = BitConverter.ToUInt16(propertyItem.Value, 0) * 10 * frameCount;
+                    }
+                }
+            }
+            return ret;
+        }
+        public static BitmapSource GetDrawingBitmapSource(string path, int frameIndex = 0)
         {
             BitmapSource ret;
             using (System.Drawing.Image image = System.Drawing.Image.FromFile(path))
             {
                 System.Drawing.Imaging.FrameDimension dimension = new(image.FrameDimensionsList[0]);
-                int searchFrame = frame;
-                if (frame < 0)
+                int searchFrame = frameIndex;
+                if (frameIndex < 0)
                 {
                     searchFrame = 0;
                 }
-                if (frame >= image.GetFrameCount(dimension))
+                if (frameIndex >= image.GetFrameCount(dimension))
                 {
                     searchFrame = image.GetFrameCount(dimension) - 1;
                 }
@@ -400,7 +497,7 @@ namespace WPF_MVVM.Helpers
             }
             return ret;
         }
-        public BitmapSource GetComparedDrawingBitmapSource(string path, int frame = 0, bool compareAll = false, bool skipMode = false)
+        public static BitmapSource GetComparedDrawingBitmapSource(string path, int frameIndex = 0, bool compareAll = false, bool skipMode = false)
         {
             BitmapSource ret;
             using (System.Drawing.Image image = System.Drawing.Image.FromFile(path))
@@ -408,25 +505,25 @@ namespace WPF_MVVM.Helpers
                 System.Drawing.Bitmap saveFrame;
                 if (compareAll == true)
                 {
-                    saveFrame = GetDrawingBitmapCompareAll(image, frame, skipMode);
+                    saveFrame = GetDrawingBitmapCompareAll(image, frameIndex, skipMode);
                 }
                 else
                 {
-                    saveFrame = GetDrawingBitmapCompare(image, frame);
+                    saveFrame = GetDrawingBitmapCompare(image, frameIndex);
                 }
                 ret = GetDrawingBitmapToBitmapSource(saveFrame);
             }
             return ret;
         }
-        private System.Drawing.Bitmap GetDrawingBitmapCompareAll(System.Drawing.Image image, int frame, bool skipMode)
+        private static System.Drawing.Bitmap GetDrawingBitmapCompareAll(System.Drawing.Image image, int frameIndex, bool skipMode)
         {
             System.Drawing.Imaging.FrameDimension dimension = new(image.FrameDimensionsList[0]);
-            int searchFrame = frame;
-            if (frame <= 0)
+            int searchFrame = frameIndex;
+            if (frameIndex <= 0)
             {
                 return new System.Drawing.Bitmap(image);
             }
-            if (frame >= image.GetFrameCount(dimension))
+            if (frameIndex >= image.GetFrameCount(dimension))
             {
                 searchFrame = image.GetFrameCount(dimension) - 1;
                 image.SelectActiveFrame(dimension, searchFrame);
@@ -461,15 +558,15 @@ namespace WPF_MVVM.Helpers
             }
             return ret;
         }
-        private System.Drawing.Bitmap GetDrawingBitmapCompare(System.Drawing.Image image, int frame)
+        private static System.Drawing.Bitmap GetDrawingBitmapCompare(System.Drawing.Image image, int frameIndex)
         {
             System.Drawing.Imaging.FrameDimension dimension = new(image.FrameDimensionsList[0]);
-            int searchFrame = frame;
-            if (frame <= 0)
+            int searchFrame = frameIndex;
+            if (frameIndex <= 0)
             {
                 return new System.Drawing.Bitmap(image);
             }
-            if (frame >= image.GetFrameCount(dimension))
+            if (frameIndex >= image.GetFrameCount(dimension))
             {
                 searchFrame = image.GetFrameCount(dimension) - 1;
                 image.SelectActiveFrame(dimension, searchFrame);
@@ -494,7 +591,7 @@ namespace WPF_MVVM.Helpers
             return ret;
         }
 
-        public BitmapSource GetDrawingBitmapToBitmapSource(System.Drawing.Bitmap bitmap)
+        public static BitmapSource GetDrawingBitmapToBitmapSource(System.Drawing.Bitmap bitmap)
         {
             BitmapSource ret;
             var hBitmap = bitmap.GetHbitmap();
@@ -503,7 +600,7 @@ namespace WPF_MVVM.Helpers
             ret.Freeze();
             return ret;
         }
-        public System.Drawing.Bitmap GetBitmapSourceToDrawingBitmap(BitmapSource bitmapSource)
+        public static System.Drawing.Bitmap GetBitmapSourceToDrawingBitmap(BitmapSource bitmapSource)
         {
             System.Drawing.Bitmap ret;
             using (MemoryStream ms = new())
@@ -516,7 +613,7 @@ namespace WPF_MVVM.Helpers
             return ret;
         }
 
-        public int GetWebpFrameSize(string path)
+        public static int GetWebpFrameSize(string path)
         {
             int ret = 0;
             using (SixLabors.ImageSharp.Image img = SixLabors.ImageSharp.Image.Load(path))
@@ -525,17 +622,17 @@ namespace WPF_MVVM.Helpers
             }
             return ret;
         }
-        public int GetWebpFrameDelay(string path, int frame = 0)
+        public static int GetWebpFrameDelay(string path, int frameIndex = 0)
         {
             int ret = 0;
-            int searchFrame = frame;
-            if (frame < 0)
+            int searchFrame = frameIndex;
+            if (frameIndex < 0)
             {
                 searchFrame = 0;
             }
             using (SixLabors.ImageSharp.Image img = SixLabors.ImageSharp.Image.Load(path))
             {
-                if (frame >= img.Frames.Count)
+                if (frameIndex >= img.Frames.Count)
                 {
                     searchFrame = img.Frames.Count - 1;
                 }
@@ -548,17 +645,17 @@ namespace WPF_MVVM.Helpers
 
             return ret;
         }
-        public BitmapImage GetWebpBitmapImage(string path, int frame = 0)
+        public static BitmapImage GetWebpBitmapImage(string path, int frameIndex = 0)
         {
             BitmapImage ret = new();
-            int searchFrame = frame;
-            if (frame < 0)
+            int searchFrame = frameIndex;
+            if (frameIndex < 0)
             {
                 searchFrame = 0;
             }
             using (SixLabors.ImageSharp.Image img = SixLabors.ImageSharp.Image.Load(path))
             {
-                if (frame >= img.Frames.Count)
+                if (frameIndex >= img.Frames.Count)
                 {
                     searchFrame = img.Frames.Count - 1;
                 }
@@ -589,17 +686,17 @@ namespace WPF_MVVM.Helpers
 
             return ret;
         }
-        public BitmapSource GetWebpBitmapSource(string path, int frame = 0)
+        public static BitmapSource GetWebpBitmapSource(string path, int frameIndex = 0)
         {
-            int searchFrame = frame;
-            if (frame < 0)
+            int searchFrame = frameIndex;
+            if (frameIndex < 0)
             {
                 searchFrame = 0;
             }
             BitmapSource ret;
             using (SixLabors.ImageSharp.Image img = SixLabors.ImageSharp.Image.Load(path))
             {
-                if (frame >= img.Frames.Count)
+                if (frameIndex >= img.Frames.Count)
                 {
                     searchFrame = img.Frames.Count - 1;
                 }
@@ -621,6 +718,57 @@ namespace WPF_MVVM.Helpers
                 }
             }
             return ret;
+        }
+
+        public static MediaState GetMediaState(MediaElement mediaElement)
+        {
+            if (typeof(MediaElement).GetField("_helper", BindingFlags.NonPublic | BindingFlags.Instance) is not FieldInfo hlp)
+            {
+                return MediaState.Stop;
+            }
+            if (hlp.GetValue(mediaElement) is not object helperObject)
+            {
+                return MediaState.Stop;
+            }
+            if (helperObject.GetType().GetField("_currentState", BindingFlags.NonPublic | BindingFlags.Instance) is not FieldInfo stateField)
+            {
+                return MediaState.Stop;
+            }
+            if (stateField.GetValue(helperObject) is not MediaState state)
+            {
+                return MediaState.Stop;
+            }
+            return state;
+        }
+        public static RenderTargetBitmap? GetCaptureMediaFrame(MediaElement mediaElement)
+        {
+            var previousState = GetMediaState(mediaElement);
+            if (previousState == MediaState.Play)
+            {
+                mediaElement.Pause();
+            }
+
+            var naturalWidth = mediaElement.NaturalVideoWidth;
+            var naturalHeight = mediaElement.NaturalVideoHeight;
+            if (naturalWidth <= 0 || naturalHeight <= 0)
+            {
+                return null;
+            }
+            DrawingVisual visual = new();
+            using (var dc = visual.RenderOpen())
+            {
+                dc.DrawRectangle(new VisualBrush(mediaElement), null, new Rect(0, 0, naturalWidth, naturalHeight));
+            }
+            RenderTargetBitmap renderTargetBitmap = new(naturalWidth, naturalHeight, 96, 96, PixelFormats.Default);
+            renderTargetBitmap.Render(visual);
+
+
+            if (previousState == MediaState.Play)
+            {
+                mediaElement.Play();
+            }
+
+            return renderTargetBitmap;
         }
     }
 }
