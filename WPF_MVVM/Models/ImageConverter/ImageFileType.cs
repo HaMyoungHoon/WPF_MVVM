@@ -11,5 +11,6 @@ namespace WPF_MVVM.Models.ImageConverter
         WEBP = 0,
         GIF = 1,
         OTHER = 2,
+        VIDEO = 3,
     }
 }

@@ -8,6 +8,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -493,7 +494,36 @@ namespace WPF_MVVM.Helpers
                 var hBitmap = saveFrame.GetHbitmap();
                 var sizeOptions = BitmapSizeOptions.FromEmptyOptions();
                 ret = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(hBitmap, IntPtr.Zero, Int32Rect.Empty, sizeOptions);
-                ret.Freeze();
+                DeleteObject(hBitmap);
+            }
+            return ret;
+        }
+        /// <summary>
+        /// 명시적으로 System.Drawing.Image dispose 해줘야 함.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="frameIndex"></param>
+        /// <returns></returns>
+        public static BitmapSource GetDrawingBitmapSource(System.Drawing.Image image, int frameIndex = 0)
+        {
+            BitmapSource ret;
+            System.Drawing.Imaging.FrameDimension dimension = new(image.FrameDimensionsList[0]);
+            int searchFrame = frameIndex;
+            if (frameIndex < 0)
+            {
+                searchFrame = 0;
+            }
+            if (frameIndex >= image.GetFrameCount(dimension))
+            {
+                searchFrame = image.GetFrameCount(dimension) - 1;
+            }
+            image.SelectActiveFrame(dimension, searchFrame);
+            using (System.Drawing.Bitmap saveFrame = new(image))
+            {
+                var hBitmap = saveFrame.GetHbitmap();
+                var sizeOptions = BitmapSizeOptions.FromEmptyOptions();
+                ret = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(hBitmap, IntPtr.Zero, Int32Rect.Empty, sizeOptions);
+                DeleteObject(hBitmap);
             }
             return ret;
         }
@@ -513,6 +543,30 @@ namespace WPF_MVVM.Helpers
                 }
                 ret = GetDrawingBitmapToBitmapSource(saveFrame);
             }
+            return ret;
+        }
+        /// <summary>
+        /// 명시적으로 System.Drawing.Image dispose 해줘야 함.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="frameIndex"></param>
+        /// <param name="compareAll"></param>
+        /// <param name="skipMode"></param>
+        /// <returns></returns>
+        public static BitmapSource GetComparedDrawingBitmapSource(System.Drawing.Image image, int frameIndex = 0, bool compareAll = false, bool skipMode = false)
+        {
+            BitmapSource ret;
+            System.Drawing.Bitmap saveFrame;
+            if (compareAll == true)
+            {
+                saveFrame = GetDrawingBitmapCompareAll(image, frameIndex, skipMode);
+            }
+            else
+            {
+                saveFrame = GetDrawingBitmapCompare(image, frameIndex);
+            }
+            ret = GetDrawingBitmapToBitmapSource(saveFrame);
+            saveFrame.Dispose();
             return ret;
         }
         private static System.Drawing.Bitmap GetDrawingBitmapCompareAll(System.Drawing.Image image, int frameIndex, bool skipMode)
@@ -597,7 +651,7 @@ namespace WPF_MVVM.Helpers
             var hBitmap = bitmap.GetHbitmap();
             var sizeOptions = BitmapSizeOptions.FromEmptyOptions();
             ret = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(hBitmap, IntPtr.Zero, Int32Rect.Empty, sizeOptions);
-            ret.Freeze();
+            DeleteObject(hBitmap);
             return ret;
         }
         public static System.Drawing.Bitmap GetBitmapSourceToDrawingBitmap(BitmapSource bitmapSource)
@@ -770,5 +824,9 @@ namespace WPF_MVVM.Helpers
 
             return renderTargetBitmap;
         }
+
+        [DllImport("gdi32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool DeleteObject(IntPtr hObject);
     }
 }

@@ -9,8 +9,7 @@ namespace WPF_MVVM.Models.ImageConverter
 {
     internal class ImageConverterItem
     {
-        public int Index { get; set; }
-        public string? FileName { get; set; }
+        public bool IsCapture { get; set; }
         public string? FilePath { get; set; }
         public BitmapSource? Image { get; set; }
         public ImageFileType? ImageFileType { get; set; }

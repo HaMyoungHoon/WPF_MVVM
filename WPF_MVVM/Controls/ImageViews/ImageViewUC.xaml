@@ -12,11 +12,11 @@
     </UserControl.Resources>
     <Grid>
         <StackPanel Orientation="Vertical" Margin="5" >
-            <Image x:Name="imgItem" HorizontalAlignment="Center" VerticalAlignment="Center" Height="100" 
-                   d:Source="../../Resources/Image/jpg_sample1.jpg" />
-            <MediaElement x:Name="mediaItem" HorizontalAlignment="Center" VerticalAlignment="Center" Height="100" ScrubbingEnabled="True" IsMuted="True"
+            <Image x:Name="imgItem" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                   d:Height="100" d:Source="../../Resources/Image/jpg_sample1.jpg" />
+            <MediaElement x:Name="mediaItem" HorizontalAlignment="Center" VerticalAlignment="Center" ScrubbingEnabled="True" IsMuted="True" LoadedBehavior="Manual" UnloadedBehavior="Manual"
                           MouseDown="mediaItem_MouseDown" MediaOpened="mediaItem_MediaOpened" MediaFailed="mediaItem_MediaFailed" MediaEnded="mediaItem_MediaEnded"
-                          d:Source="../../Resources/Video/mp4_sample1.mp4" />
+                          d:Height="100" d:Source="../../Resources/Video/mp4_sample1.mp4" d:LoadedBehavior="Play" />
             <Grid Margin="5" x:Name="gridPlayControl">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto" />
@@ -27,14 +27,17 @@
                         Click="btnStart_Click">
                     <md:PackIcon x:Name="btnStartIcon" Kind="Pause" d:Kind="Play" />
                 </Button>
-                <Slider Grid.Column="1" x:Name="sliderTimeline" Margin="5, 0" VerticalAlignment="Center" Style="{StaticResource defSlider}" IsMoveToPointEnabled="True"
+                <StackPanel Grid.Column="1" Orientation="Vertical" Margin="5, 0" VerticalAlignment="Center">
+                    <Slider x:Name="sliderTimeline" Style="{StaticResource defSlider}" IsMoveToPointEnabled="True"
                         MouseDown="sliderTimeline_MouseDown" MouseUp="sliderTimeline_MouseUp" ValueChanged="sliderTimeline_ValueChanged" />
+                    <TextBlock x:Name="tbLabTime" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" TextAlignment="Center" d:Text="0/10" FontSize="8" />
+                </StackPanel>
                 <Button Grid.Column="2" x:Name="btnMute" Width="20" Height="20" Padding="0" 
                         Click="btnMute_Click" >
                     <md:PackIcon x:Name="btnMuteIcon" Kind="Mute" d:Kind="VolumeMedium" />
                 </Button>
             </Grid>
-            <TextBlock x:Name="imgName" Width="100" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" TextAlignment="Center"
+            <TextBlock x:Name="tbFileName" Width="100" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" TextAlignment="Center"
                    d:Text="파일 이름" />
         </StackPanel>
     </Grid>

@@ -6,6 +6,7 @@
       xmlns:local="clr-namespace:WPF_MVVM.Views.ImageConverter"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:bv="clr-namespace:WPF_MVVM.Behaviors"
+      xmlns:ctl="clr-namespace:WPF_MVVM.Controls.ImageViews"
       mc:Ignorable="d" >
     <Grid>
         <Grid.RowDefinitions>
@@ -21,28 +22,24 @@
                 <Button Content="변환" Command="{Binding ConvertCommand}" Margin="5,0" />
             </StackPanel>
         </Grid>
-        <ListView Grid.Row="1" Margin="5" HorizontalContentAlignment="Center"
+        <ListBox Grid.Row="1" Margin="5" HorizontalContentAlignment="Center"
                   ItemsSource="{Binding ImageConverterItemList}" VirtualizingPanel.IsVirtualizing="True">
             <b:Interaction.Behaviors>
+                <bv:KeyBehaviour KeyDownCommand="{Binding KeyDownCommand}" KeyUpCommand="{Binding KeyUpCommand}" />
                 <bv:MouseBehaviour MouseWheelCommand="{Binding MouseWheelCommand}" />
             </b:Interaction.Behaviors>
-            <ListView.ItemTemplate>
+            <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Vertical">
-                        <Image Source="{Binding Image}" Height="{Binding DataContext.ImageHeight, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                                      HorizontalAlignment="Center" VerticalAlignment="Center" />
-
-                        <TextBlock Text="{Binding FileName}" Width="50" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <ctl:ImageViewUC ImageFilePath="{Binding FilePath}" ImageHeight="{Binding DataContext.ImageHeight, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" 
+                                     GetCaptureMedia="{Binding DataContext.GetMediaItemCaptureCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" />
                 </DataTemplate>
-            </ListView.ItemTemplate>
-            <ListView.ItemsPanel>
+            </ListBox.ItemTemplate>
+            <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Columns="{Binding DataContext.GridColumnsCount, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
                         HorizontalAlignment="Stretch" VerticalAlignment="Top" />
                 </ItemsPanelTemplate>
-            </ListView.ItemsPanel>
-        </ListView>
+            </ListBox.ItemsPanel>
+        </ListBox>
     </Grid>
 </Page>

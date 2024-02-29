@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using WPF_MVVM.Helpers;
+using WPF_MVVM.Models.ImageConverter;
 
 namespace WPF_MVVM.Controls.ImageViews
 {
@@ -24,26 +25,37 @@ namespace WPF_MVVM.Controls.ImageViews
     /// </summary>
     public partial class ImageViewUC : UserControl
     {
+        public static readonly DependencyProperty GifIndexProperty = DependencyProperty.Register(nameof(GifIndex), typeof(int), typeof(ImageViewUC));
+        public static readonly DependencyProperty ImageHeightProperty = DependencyProperty.Register(nameof(ImageHeight), typeof(double), typeof(ImageViewUC), new FrameworkPropertyMetadata(100.0, ImageHeightChanged));
         public static readonly DependencyProperty ImageFilePathProperty = DependencyProperty.Register(nameof(ImageFilePath), typeof(string), typeof(ImageViewUC), new FrameworkPropertyMetadata(string.Empty, ImageFilePathChanged));
-        public static readonly DependencyProperty SetCaptureMediaCommandProperty = DependencyProperty.Register(nameof(SetCaptureMediaCommand), typeof(bool), typeof(ImageViewUC), new PropertyMetadata(false, SetCaptureMediaCommandChanged);
         public static readonly DependencyProperty GetCaptureMediaCommandProperty = DependencyProperty.Register(nameof(GetCaptureMediaCommand), typeof(object), typeof(ImageViewUC));
+        public static readonly DependencyProperty GetCaptureMediaProperty = DependencyProperty.Register(nameof(GetCaptureMedia), typeof(object), typeof(ImageViewUC));
         public static readonly DependencyProperty ErrorCommandProperty = DependencyProperty.Register(nameof(ErrorCommand), typeof(object), typeof(ImageViewUC));
-        public static readonly DependencyProperty ImageHeightProperty = DependencyProperty.Register(nameof(ImageFilePath), typeof(double), typeof(ImageViewUC), new FrameworkPropertyMetadata(100, ImageHeightChanged));
         public static RoutedEvent ErrorEventProperty = EventManager.RegisterRoutedEvent(nameof(ErrorEvent), RoutingStrategy.Direct, typeof(RoutedEventHandler), typeof(ImageViewUC));
+        public int GifIndex
+        {
+            get => (int)GetValue(GifIndexProperty);
+            set => SetValue(GifIndexProperty, value);
+        }
+        public double ImageHeight
+        {
+            get => (double)GetValue(ImageHeightProperty);   
+            set => SetValue(ImageHeightProperty, value);
+        }
         public string ImageFilePath
         { 
             get => (string)GetValue(ImageFilePathProperty); 
             set => SetValue(ImageFilePathProperty, value);
         }
-        public bool SetCaptureMediaCommand
-        {
-            get => (bool)GetValue(SetCaptureMediaCommandProperty);
-            set => SetValue(SetCaptureMediaCommandProperty, value);
-        }
         public ICommand? GetCaptureMediaCommand
         {
-            get => (ICommand?)GetValue(GetCaptureMediaCommandProperty);
+            get => (ICommand)GetValue(GetCaptureMediaCommandProperty);
             set => SetValue(GetCaptureMediaCommandProperty, value);
+        }
+        public BitmapSource? GetCaptureMedia
+        {
+            get => (BitmapSource?)GetValue(GetCaptureMediaProperty);
+            set => SetValue(GetCaptureMediaProperty, value);
         }
         public ICommand? ErrorCommand
         {
@@ -56,16 +68,44 @@ namespace WPF_MVVM.Controls.ImageViews
             remove => RemoveHandler(ErrorEventProperty, value);
         }
 
+        private int _gifFrameSize;
+        private System.Drawing.Image? _image;
+        private ImageFileType _imageFileType;
         private MediaState _previousMediaState;
         private DispatcherTimer _timer;
 
         public ImageViewUC()
         {
             InitializeComponent();
-            _timer = new();
+            _gifFrameSize = 0;
+            _imageFileType = ImageFileType.OTHER;
             _previousMediaState = MediaState.Close;
+            _timer = new();
         }
 
+        public BitmapSource? GetCurrentImage() => _imageFileType switch
+        {
+            ImageFileType.WEBP => ImageHelper.GetWebpBitmapSource(ImageFilePath),
+            ImageFileType.OTHER => ImageHelper.GetBitmapSource(ImageFilePath),
+            ImageFileType.GIF => ImageHelper.GetCaptureMediaFrame(mediaItem),
+            ImageFileType.VIDEO => ImageHelper.GetCaptureMediaFrame(mediaItem),
+            _ => null
+        };
+
+        private static void ImageHeightChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is not ImageViewUC imageViewUC)
+            {
+                return;
+            }
+            if (e.NewValue == null || e.NewValue is not double height)
+            {
+                return;
+            }
+
+            imageViewUC.mediaItem.Height = height;
+            imageViewUC.imgItem.Height = height;
+        }
         private static void ImageFilePathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is not ImageViewUC imageViewUC)
@@ -83,15 +123,18 @@ namespace WPF_MVVM.Controls.ImageViews
                 fs.Read(header, 0, 12);
             }
 
-            imageViewUC.imgName.Text = System.IO.Path.GetFileName(filePath);
+            imageViewUC.tbFileName.Text = System.IO.Path.GetFileName(filePath);
 
             if (ImageHelper.IsGif(header))
             {
+                imageViewUC._imageFileType = ImageFileType.GIF;
                 imageViewUC.SetGifImage();
+//                imageViewUC.SetGifImage2();
                 return;
             }
             if (ImageHelper.IsWebp(header))
             {
+                imageViewUC._imageFileType = ImageFileType.WEBP;
                 imageViewUC.SetWebpImage();
                 return;
             }
@@ -100,82 +143,30 @@ namespace WPF_MVVM.Controls.ImageViews
 
             // 영상은 귀찮으니 나중에
         }
-        private static void SetCaptureMediaCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+
+        private void btnStartIconPause()
         {
-            if (d is not ImageViewUC imageViewUC)
-            {
-                return;
-            }
-            if (e.NewValue == null || e.NewValue is not bool capture)
-            {
-                return;
-            }
-
-            if (capture == false)
-            {
-                return;
-            }
-
-            imageViewUC.GetCaptureMediaCommand?.Execute(ImageHelper.GetCaptureMediaFrame(imageViewUC.mediaItem));
-            capture = false;
+            btnStartIcon.Kind = PackIconKind.Pause;
         }
-        private static void ImageHeightChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private void btnStartIconPlay()
         {
-            if (d is not ImageViewUC imageViewUC)
-            {
-                return;
-            }
-            if (e.NewValue == null || e.NewValue is not double height)
-            {
-                return;
-            }
-
-            if (height < 50 || height > 500)
-            {
-                return;
-            }
-
-            imageViewUC.mediaItem.Height = height;
-            imageViewUC.imgItem.Height = height;
+            btnStartIcon.Kind = PackIconKind.Play;
         }
-
         private void mediaItem_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (!mediaItem.CanPause)
+            if (_imageFileType == ImageFileType.VIDEO)
             {
-                return;
+                MediaControl();
             }
-
-            switch (ImageHelper.GetMediaState(mediaItem))
+            else
             {
-                case MediaState.Pause:
-                    {
-                        mediaItem.Play();
-                        _timer.Start();
-                        btnStartIcon.Kind = PackIconKind.Pause;
-                    }
-                    break;
-                case MediaState.Play:
-                    {
-                        mediaItem.Pause();
-                        _timer.Stop();
-                        btnStartIcon.Kind = PackIconKind.Play;
-                    }
-                    break;
-                case MediaState.Stop:
-                    {
-                        mediaItem.Play();
-                        _timer.Start();
-                        btnStartIcon.Kind = PackIconKind.Pause;
-                    }
-                    break;
+
             }
         }
         private void mediaItem_MediaOpened(object sender, RoutedEventArgs e)
         {
-            mediaItem.Play();
             _timer.Start();
-            btnStartIcon.Kind = PackIconKind.Pause;
+            btnStartIconPause();
         }
         private void mediaItem_MediaFailed(object sender, ExceptionRoutedEventArgs e)
         {
@@ -185,58 +176,78 @@ namespace WPF_MVVM.Controls.ImageViews
         {
             mediaItem.Stop();
             _timer.Stop();
-            btnStartIcon.Kind = PackIconKind.Play;
+            btnStartIconPlay();
         }
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
-            switch (ImageHelper.GetMediaState(mediaItem))
+            if (_imageFileType == ImageFileType.VIDEO)
             {
-                case MediaState.Pause:
-                    {
-                        mediaItem.Play();
-                        _timer.Start();
-                        btnStartIcon.Kind = PackIconKind.Pause;
-                    }
-                    break;
-                case MediaState.Play:
-                    {
-                        mediaItem.Pause();
-                        _timer.Stop();
-                        btnStartIcon.Kind = PackIconKind.Play;
-                    }
-                    break;
-                case MediaState.Stop:
-                    {
-                        mediaItem.Play();
-                        _timer.Start();
-                        btnStartIcon.Kind = PackIconKind.Pause;
-                    }
-                    break;
+                MediaControl();
+            }
+            else
+            {
+                GifControl();
             }
         }
         private void sliderTimeline_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (ImageHelper.GetMediaState(mediaItem) == MediaState.Play)
+            if (_imageFileType != ImageFileType.VIDEO)
             {
-                return;
+                if (_timer.IsEnabled)
+                {
+                    return;
+                }
+                GifIndex = (int)sliderTimeline.Value;
+                if (_image != null)
+                {
+                    imgItem.Source = ImageHelper.GetDrawingBitmapSource(_image, GifIndex);
+                }
             }
-            mediaItem.Position = TimeSpan.FromSeconds(sliderTimeline.Value);
+            else
+            {
+                if (ImageHelper.GetMediaState(mediaItem) == MediaState.Play)
+                {
+                    return;
+                }
+                mediaItem.Position = TimeSpan.FromSeconds(sliderTimeline.Value);
+            }
         }
         private void sliderTimeline_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            _previousMediaState = ImageHelper.GetMediaState(mediaItem);
-            if (_previousMediaState == MediaState.Play)
+            if (_imageFileType != ImageFileType.VIDEO)
             {
-                mediaItem.Pause();
-                _timer.Stop();
+                _previousMediaState = _timer.IsEnabled ? MediaState.Play : MediaState.Stop;
+                if (_previousMediaState == MediaState.Play)
+                {
+                    _timer.Stop();
+                }
+            }
+            else
+            {
+                _previousMediaState = ImageHelper.GetMediaState(mediaItem);
+                if (_previousMediaState == MediaState.Play)
+                {
+                    mediaItem.Pause();
+                    _timer.Stop();
+                }
             }
         }
         private void sliderTimeline_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (_previousMediaState == MediaState.Play)
+            if (_imageFileType != ImageFileType.VIDEO)
             {
-                mediaItem.Play();
-                _timer.Start();
+                if (_previousMediaState == MediaState.Play)
+                {
+                    _timer.Start();
+                }
+            }
+            else
+            {
+                if (_previousMediaState == MediaState.Play)
+                {
+                    mediaItem.Play();
+                    _timer.Start();
+                }
             }
         }
         private void btnMute_Click(object sender, RoutedEventArgs e)
@@ -247,22 +258,57 @@ namespace WPF_MVVM.Controls.ImageViews
 
         private void SetGifImage()
         {
+            mediaItem.Visibility = Visibility.Collapsed;
+            btnMute.Visibility = Visibility.Collapsed;
+            _image = ImageHelper.GetDrawingImage(ImageFilePath);
+            imgItem.Source = ImageHelper.GetDrawingBitmapSource(ImageFilePath);
+            TimerSetting();
+            _timer.Start();
+        }
+        private void SetGifImage2()
+        {
             imgItem.Visibility = Visibility.Collapsed;
             btnMute.Visibility = Visibility.Collapsed;
-            TimerSetting();
+            mediaItem.Source = new Uri(ImageFilePath, UriKind.RelativeOrAbsolute);
+            TimerSetting2();
+            mediaItem.Play();
         }
-
         private void SetWebpImage()
         {
             gridPlayControl.Visibility = Visibility.Collapsed;
             mediaItem.Visibility = Visibility.Collapsed;
+            imgItem.Source = ImageHelper.GetWebpBitmapSource(ImageFilePath);
         }
-
         private void SetImage()
         {
             gridPlayControl.Visibility = Visibility.Collapsed;
             mediaItem.Visibility = Visibility.Collapsed;
-
+            imgItem.Source = ImageHelper.GetDrawingBitmapSource(ImageFilePath);
+        }
+        private void SetVideo()
+        {
+            imgItem.Visibility = Visibility.Collapsed;
+            btnMute.Visibility = Visibility.Collapsed;
+            mediaItem.Source = new Uri(ImageFilePath, UriKind.RelativeOrAbsolute);
+            mediaItem.Play();
+        }
+        private void SetTimeLineCount()
+        {
+            if (_imageFileType == ImageFileType.GIF)
+            {
+                tbLabTime.Text = $"{GifIndex} / {_gifFrameSize}";
+            }
+            if (_imageFileType == ImageFileType.WEBP)
+            {
+                var curTime = mediaItem.Position.ToString();
+                curTime = curTime[..curTime.IndexOf('.')];
+                var totalTime = "??:??:??";
+                if (mediaItem.NaturalDuration.HasTimeSpan)
+                {
+                    totalTime = mediaItem.NaturalDuration.TimeSpan.ToString();
+                }
+                tbLabTime.Text = $"{curTime}/{totalTime}";
+            }
         }
 
         private void ErrorCall(string? message)
@@ -272,15 +318,121 @@ namespace WPF_MVVM.Controls.ImageViews
             RaiseEvent(new(ErrorEventProperty, this));
         }
 
+        private void MediaControl()
+        {
+            switch (ImageHelper.GetMediaState(mediaItem))
+            {
+                case MediaState.Pause:
+                    {
+                        mediaItem.Play();
+                        _timer.Start();
+                        btnStartIconPause();
+                    }
+                    break;
+                case MediaState.Play:
+                    {
+                        mediaItem.Pause();
+                        _timer.Stop();
+                        btnStartIconPlay();
+                    }
+                    break;
+                case MediaState.Stop:
+                    {
+                        mediaItem.Position = TimeSpan.FromMilliseconds(1);
+                        mediaItem.Play();
+                        _timer.Start();
+                        btnStartIconPause();
+                    }
+                    break;
+            }
+        }
+        private void GifControl()
+        {
+            if (_imageFileType != ImageFileType.GIF)
+            {
+                return;
+            }
+
+            var isPlay = _timer.IsEnabled;
+            var isPause = !isPlay && GifIndex < _gifFrameSize;
+            var isStop = !isPlay && GifIndex >= _gifFrameSize;
+
+            if (isPause)
+            {
+                _timer.Start();
+                btnStartIconPause();
+            }
+            else if (isPlay)
+            {
+                _timer.Stop();
+                btnStartIconPlay();
+            }
+            else if (isStop)
+            {
+                GifIndex = 0;
+                _timer.Start();
+                btnStartIconPause();
+            }
+        }
 
         private void TimerSetting()
         {
-            sliderTimeline.Maximum = ImageHelper.GetGifFrameTotalDelay(ImageFilePath) / 1000;
-            _timer.Interval = TimeSpan.FromMilliseconds(ImageHelper.GetGifFrameDelay(ImageFilePath));
-            _timer.Tick += (sender, e) =>
+            SetTimeLineCount();
+            if (mediaItem.NaturalDuration.HasTimeSpan)
             {
-                sliderTimeline.Value = mediaItem.Position.TotalSeconds;
-            };
+                sliderTimeline.Maximum = mediaItem.NaturalDuration.TimeSpan.TotalSeconds;
+                _timer.Interval = TimeSpan.FromMilliseconds(ImageHelper.GetGifFrameTotalDelay(ImageFilePath));
+                _timer.Tick += (sender, e) =>
+                {
+                    sliderTimeline.Value = mediaItem.Position.TotalSeconds;
+                };
+            }
+            else
+            {
+                _gifFrameSize = ImageHelper.GetGifFrameSize(ImageFilePath);
+                sliderTimeline.Maximum = ImageHelper.GetDrawingImageFrameSize(ImageFilePath);
+                _timer.Interval = TimeSpan.FromMilliseconds(ImageHelper.GetGifFrameDelay(ImageFilePath));
+                _timer.Tick += (sender, e) =>
+                {
+                    if (GifIndex >= _gifFrameSize)
+                    {
+                        _timer.Stop();
+                        btnStartIconPlay();
+                        return;
+                    }
+
+                    GifIndex++;
+                    _timer.Interval = TimeSpan.FromMilliseconds(ImageHelper.GetGifFrameDelay(ImageFilePath));
+                    if (_image != null)
+                    {
+                        imgItem.Source = ImageHelper.GetDrawingBitmapSource(_image, GifIndex);
+                    }
+                    sliderTimeline.Value = GifIndex;
+                    SetTimeLineCount();
+                };
+            }
+        }
+        private void TimerSetting2()
+        {
+            SetTimeLineCount();
+            if (mediaItem.NaturalDuration.HasTimeSpan)
+            {
+                sliderTimeline.Maximum = mediaItem.NaturalDuration.TimeSpan.TotalSeconds;
+                _timer.Interval = TimeSpan.FromMilliseconds(ImageHelper.GetGifFrameDelay(ImageFilePath));
+                _timer.Tick += (sender, e) =>
+                {
+                    sliderTimeline.Value = mediaItem.Position.TotalSeconds;
+                };
+            }
+            else
+            {
+                sliderTimeline.Maximum = ImageHelper.GetDrawingImageFrameTotalDelay(ImageFilePath);
+                _timer.Interval = TimeSpan.FromMilliseconds(ImageHelper.GetGifFrameDelay(ImageFilePath));
+                _timer.Tick += (sender, e) =>
+                {
+                    sliderTimeline.Value = mediaItem.Position.TotalMilliseconds;
+                };
+            }
         }
     }
 }
