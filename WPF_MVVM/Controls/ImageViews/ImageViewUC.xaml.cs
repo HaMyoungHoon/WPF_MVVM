@@ -282,8 +282,8 @@ namespace WPF_MVVM.Controls.ImageViews
             btnMute.Visibility = Visibility.Collapsed;
             _image = ImageHelper.GetDrawingImage(ImageFilePath);
             imgItem.Source = ImageHelper.GetDrawingBitmapSource(ImageFilePath);
-            _timer.Start();
             TimerSetting();
+            _timer.Start();
         }
         private void SetGifImage2()
         {
