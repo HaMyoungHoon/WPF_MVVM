@@ -28,8 +28,9 @@
                     <md:PackIcon x:Name="btnStartIcon" Kind="Pause" d:Kind="Play" />
                 </Button>
                 <StackPanel Grid.Column="1" Orientation="Vertical" Margin="5, 0" VerticalAlignment="Center">
-                    <Slider x:Name="sliderTimeline" Style="{StaticResource defSlider}" IsMoveToPointEnabled="True"
-                        MouseDown="sliderTimeline_MouseDown" MouseUp="sliderTimeline_MouseUp" ValueChanged="sliderTimeline_ValueChanged" />
+                    <Slider x:Name="sliderTimeline" IsMoveToPointEnabled="True"
+                            PreviewMouseDown="sliderTimeline_PreviewMouseDown" PreviewMouseUp="sliderTimeline_PreviewMouseUp"
+                            ValueChanged="sliderTimeline_ValueChanged" />
                     <TextBlock x:Name="tbLabTime" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" TextAlignment="Center" d:Text="0/10" FontSize="8" />
                 </StackPanel>
                 <Button Grid.Column="2" x:Name="btnMute" Width="20" Height="20" Padding="0" 
@@ -37,8 +38,8 @@
                     <md:PackIcon x:Name="btnMuteIcon" Kind="Mute" d:Kind="VolumeMedium" />
                 </Button>
             </Grid>
-            <TextBlock x:Name="tbFileName" Width="100" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" TextAlignment="Center"
-                   d:Text="파일 이름" />
+            <TextBlock x:Name="tbFileName" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" TextAlignment="Center"
+                       d:Text="파일 이름" />
         </StackPanel>
     </Grid>
 </UserControl>

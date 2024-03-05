@@ -29,6 +29,19 @@ namespace WPF_MVVM.Helpers
             var headerText = Encoding.ASCII.GetString(header);
             return headerText.StartsWith("GIF87a") || headerText.StartsWith("GIF89a");
         }
+        public static bool IsJPG(byte[] header)
+        {
+            return header[0] == 0xFF && header[1] == 0xD8;
+        }
+        public static bool IsBMP(byte[] header)
+        {
+            return header[0] == 0x42 && header[1] == 0x4D;
+        }
+        public static bool IsPNG(byte[] header)
+        {
+            return header[0] == 0x89 && header[1] == 0x50 && header[2] == 0x4E && header[3] == 0x47 && 
+                   header[4] == 0x0D && header[5] == 0x0A && header[6] == 0x1A && header[7] == 0x0A;
+        }
 
         public static BitmapImage GetBitmapImage(Uri uri)
         {

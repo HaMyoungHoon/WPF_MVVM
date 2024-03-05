@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -139,6 +140,25 @@ namespace WPF_MVVM.Controls.ImageViews
                 return;
             }
 
+            if (VideoHelper.IsAVI(header))
+            {
+                imageViewUC._imageFileType = ImageFileType.VIDEO;
+                imageViewUC.SetVideo();
+                return;
+            }
+            if (VideoHelper.IsMP4(header))
+            {
+                imageViewUC._imageFileType = ImageFileType.VIDEO;
+                imageViewUC.SetVideo();
+                return;
+            }
+            if (VideoHelper.IsASF(header))
+            {
+                imageViewUC._imageFileType = ImageFileType.VIDEO;
+                imageViewUC.SetVideo();
+                return;
+            }
+
             imageViewUC.SetImage();
 
             // 영상은 귀찮으니 나중에
@@ -212,7 +232,7 @@ namespace WPF_MVVM.Controls.ImageViews
                 mediaItem.Position = TimeSpan.FromSeconds(sliderTimeline.Value);
             }
         }
-        private void sliderTimeline_MouseDown(object sender, MouseButtonEventArgs e)
+        private void sliderTimeline_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (_imageFileType != ImageFileType.VIDEO)
             {
@@ -232,7 +252,7 @@ namespace WPF_MVVM.Controls.ImageViews
                 }
             }
         }
-        private void sliderTimeline_MouseUp(object sender, MouseButtonEventArgs e)
+        private void sliderTimeline_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (_imageFileType != ImageFileType.VIDEO)
             {
@@ -262,16 +282,16 @@ namespace WPF_MVVM.Controls.ImageViews
             btnMute.Visibility = Visibility.Collapsed;
             _image = ImageHelper.GetDrawingImage(ImageFilePath);
             imgItem.Source = ImageHelper.GetDrawingBitmapSource(ImageFilePath);
-            TimerSetting();
             _timer.Start();
+            TimerSetting();
         }
         private void SetGifImage2()
         {
             imgItem.Visibility = Visibility.Collapsed;
             btnMute.Visibility = Visibility.Collapsed;
             mediaItem.Source = new Uri(ImageFilePath, UriKind.RelativeOrAbsolute);
-            TimerSetting2();
             mediaItem.Play();
+            TimerSetting2();
         }
         private void SetWebpImage()
         {
@@ -288,9 +308,9 @@ namespace WPF_MVVM.Controls.ImageViews
         private void SetVideo()
         {
             imgItem.Visibility = Visibility.Collapsed;
-            btnMute.Visibility = Visibility.Collapsed;
             mediaItem.Source = new Uri(ImageFilePath, UriKind.RelativeOrAbsolute);
             mediaItem.Play();
+            TimerSetting2();
         }
         private void SetTimeLineCount()
         {
@@ -306,6 +326,21 @@ namespace WPF_MVVM.Controls.ImageViews
                 if (mediaItem.NaturalDuration.HasTimeSpan)
                 {
                     totalTime = mediaItem.NaturalDuration.TimeSpan.ToString();
+                }
+                tbLabTime.Text = $"{curTime}/{totalTime}";
+            }
+            if (_imageFileType == ImageFileType.VIDEO)
+            {
+                var curTime = mediaItem.Position.ToString();
+                curTime = curTime[..curTime.IndexOf('.')];
+                var totalTime = "??:??:??";
+                if (mediaItem.NaturalDuration.HasTimeSpan)
+                {
+                    totalTime = mediaItem.NaturalDuration.TimeSpan.ToString();
+                }
+                else
+                {
+                    totalTime = VideoHelper.GetFFMpegVideoDuration(ImageFilePath).ToString();
                 }
                 tbLabTime.Text = $"{curTime}/{totalTime}";
             }
@@ -377,7 +412,7 @@ namespace WPF_MVVM.Controls.ImageViews
 
         private void TimerSetting()
         {
-            SetTimeLineCount();
+            Thread.Sleep(100);
             if (mediaItem.NaturalDuration.HasTimeSpan)
             {
                 sliderTimeline.Maximum = mediaItem.NaturalDuration.TimeSpan.TotalSeconds;
@@ -385,6 +420,7 @@ namespace WPF_MVVM.Controls.ImageViews
                 _timer.Tick += (sender, e) =>
                 {
                     sliderTimeline.Value = mediaItem.Position.TotalSeconds;
+                    SetTimeLineCount();
                 };
             }
             else
@@ -414,23 +450,25 @@ namespace WPF_MVVM.Controls.ImageViews
         }
         private void TimerSetting2()
         {
-            SetTimeLineCount();
+            Thread.Sleep(100);
             if (mediaItem.NaturalDuration.HasTimeSpan)
             {
                 sliderTimeline.Maximum = mediaItem.NaturalDuration.TimeSpan.TotalSeconds;
-                _timer.Interval = TimeSpan.FromMilliseconds(ImageHelper.GetGifFrameDelay(ImageFilePath));
+                _timer.Interval = TimeSpan.FromMilliseconds(50);
                 _timer.Tick += (sender, e) =>
                 {
                     sliderTimeline.Value = mediaItem.Position.TotalSeconds;
+                    SetTimeLineCount();
                 };
             }
             else
             {
-                sliderTimeline.Maximum = ImageHelper.GetDrawingImageFrameTotalDelay(ImageFilePath);
-                _timer.Interval = TimeSpan.FromMilliseconds(ImageHelper.GetGifFrameDelay(ImageFilePath));
+                sliderTimeline.Maximum = VideoHelper.GetFFMpegVideoDuration(ImageFilePath).TotalSeconds;
+                _timer.Interval = TimeSpan.FromMilliseconds(VideoHelper.GetFFMpegFrameRate(ImageFilePath));
                 _timer.Tick += (sender, e) =>
                 {
-                    sliderTimeline.Value = mediaItem.Position.TotalMilliseconds;
+                    sliderTimeline.Value = mediaItem.Position.TotalSeconds;
+                    SetTimeLineCount();
                 };
             }
         }

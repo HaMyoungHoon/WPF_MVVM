@@ -80,7 +80,7 @@ namespace WPF_MVVM.Views.ImageConverter
             OpenFileDialog ofd = new()
             {
 //                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                Filter = "사진(*.jpg;*.png;*.gif;*.bmp;*.webp)|*.jpg;*.png;*.gif;*.bmp;*.webp",
+//                Filter = "사진(*.jpg;*.png;*.gif;*.bmp;*.webp)|*.jpg;*.png;*.gif;*.bmp;*.webp",
                 Title = "열기",
                 Multiselect = true,
             };

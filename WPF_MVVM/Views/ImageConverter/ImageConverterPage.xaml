@@ -8,6 +8,9 @@
       xmlns:bv="clr-namespace:WPF_MVVM.Behaviors"
       xmlns:ctl="clr-namespace:WPF_MVVM.Controls.ImageViews"
       mc:Ignorable="d" >
+    <Page.Resources>
+        <Style TargetType="UniformGrid" />
+    </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
