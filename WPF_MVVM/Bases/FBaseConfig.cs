@@ -16,6 +16,8 @@ namespace WPF_MVVM.Bases
             NotifyDuration = 5;
             ImageFilter = Array.Empty<string>();
             VideoFilter = Array.Empty<string>();
+
+            ImageConvertSaveDirPath = @"C:\ImageConvert";
         }
 
         private static bool CheckFolder(string path)
@@ -77,6 +79,7 @@ namespace WPF_MVVM.Bases
             FFileParser cfg = new(_filePath, FFileParser.FILE_TYPE.XML);
             CreateUIConfig(cfg);
             CreateEtcConfig(cfg);
+            CreateImageConvertConfig(cfg);
 
         }
         public void LoadSettingFile()
@@ -86,6 +89,7 @@ namespace WPF_MVVM.Bases
             FFileParser cfg = new(_filePath, FFileParser.FILE_TYPE.XML);
             GetUIConfig(cfg);
             GetEtcConfig(cfg);
+            GetImageConvertConfig(cfg);
         }
         public void ReCreateSettingFile()
         {
@@ -117,6 +121,10 @@ namespace WPF_MVVM.Bases
             data.SetString("ADMIN,ETC,VideoFilter_2", ".wmv");
             data.SetString("ADMIN,ETC,VideoFilter_3", ".mkv");
             data.SetString("ADMIN,ETC,VideoFilter_4", ".mov");
+        }
+        private void CreateImageConvertConfig(FFileParser data)
+        {
+            data.SetString("ADMIN,IMAGE_CONVERTER,SaveDirPath", @"C:\ImageConvert");
         }
 
         private void GetUIConfig(FFileParser data)
@@ -168,6 +176,10 @@ namespace WPF_MVVM.Bases
                 i++;
             }
         }
+        private void GetImageConvertConfig(FFileParser data)
+        {
+            ImageConvertSaveDirPath = data.GetString("ADMIN,IMAGE_CONVERTER,SaveDirPath", @"C:\ImageConvert");
+        }
 
         public void SetDarkTheme(bool data)
         {
@@ -190,6 +202,17 @@ namespace WPF_MVVM.Bases
             FFileParser cfg = new(_filePath, FFileParser.FILE_TYPE.XML);
             cfg.SetInt("ADMIN,UI,NotifyDuration", data);
             NotifyDuration = data;
+        }
+
+        public void SetImageConvertSaveDir(string data)
+        {
+            if (data == null || data.Length == 0)
+            {
+                data = @"C:\ImageConvert";
+            }
+            FFileParser cfg = new(_filePath, FFileParser.FILE_TYPE.XML);
+            cfg.SetString("ADMIN,IMAGE_CONVERTER,SaveDirPath", data);
+            ImageConvertSaveDirPath = data;
         }
     }
 }

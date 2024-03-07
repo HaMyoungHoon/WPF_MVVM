@@ -22,27 +22,26 @@
         <Grid Grid.Row="0" Margin="5">
             <StackPanel Orientation="Horizontal">
                 <Button Content="열기" Command="{Binding OpenCommand}" Margin="5,0" />
-                <Button Content="변환" Command="{Binding ConvertCommand}" Margin="5,0" />
+                <Button Content="변환" Command="{Binding ConvertCommand}" CommandParameter="{Binding ElementName=lbContent}" Margin="5,0" />
             </StackPanel>
         </Grid>
-        <ListBox Grid.Row="1" Margin="5" HorizontalContentAlignment="Center"
+        <ListView x:Name="lbContent" Grid.Row="1" Margin="5" HorizontalContentAlignment="Center"
                   ItemsSource="{Binding ImageConverterItemList}" VirtualizingPanel.IsVirtualizing="True">
             <b:Interaction.Behaviors>
                 <bv:KeyBehaviour KeyDownCommand="{Binding KeyDownCommand}" KeyUpCommand="{Binding KeyUpCommand}" />
                 <bv:MouseBehaviour MouseWheelCommand="{Binding MouseWheelCommand}" />
             </b:Interaction.Behaviors>
-            <ListBox.ItemTemplate>
+            <ListView.ItemTemplate>
                 <DataTemplate>
-                    <ctl:ImageViewUC ImageFilePath="{Binding FilePath}" ImageHeight="{Binding DataContext.ImageHeight, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" 
-                                     GetCaptureMedia="{Binding DataContext.GetMediaItemCaptureCommand, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" />
+                    <ctl:ImageViewUC x:Name="ucItem" ImageFilePath="{Binding FilePath}" ImageHeight="{Binding DataContext.ImageHeight, RelativeSource={RelativeSource AncestorType={x:Type Page}}}" />
                 </DataTemplate>
-            </ListBox.ItemTemplate>
-            <ListBox.ItemsPanel>
+            </ListView.ItemTemplate>
+            <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Columns="{Binding DataContext.GridColumnsCount, RelativeSource={RelativeSource AncestorType={x:Type Page}}}"
-                        HorizontalAlignment="Stretch" VerticalAlignment="Top" />
+                                 HorizontalAlignment="Stretch" VerticalAlignment="Top" />
                 </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
-        </ListBox>
+            </ListView.ItemsPanel>
+        </ListView>
     </Grid>
 </Page>

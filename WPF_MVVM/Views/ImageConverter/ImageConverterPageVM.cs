@@ -1,9 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Win32;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -48,9 +51,8 @@ namespace WPF_MVVM.Views.ImageConverter
             _imageHeight = 200;
 
             OpenCommand = new RelayCommand(OpenEvent);
-            ConvertCommand = new RelayCommand(ConvertEvent, CanConvert);
+            ConvertCommand = new AsyncRelayCommand<object?>(ConvertEvent, CanConvert);
             MouseWheelCommand = new RelayCommand<object?>(MouseWheelEvent);
-            GetMediaItemCaptureCommand = new RelayCommand<object?>(GetMediaItemCaptureEvent);
             KeyDownCommand = new RelayCommand<object?>(KeyDownEvent);
             KeyUpCommand = new RelayCommand<object?>(KeyUpEvent);
         }
@@ -58,7 +60,6 @@ namespace WPF_MVVM.Views.ImageConverter
         public IRelayCommand OpenCommand { get; }
         public IRelayCommand ConvertCommand { get; }
         public IRelayCommand MouseWheelCommand { get; }
-        public IRelayCommand GetMediaItemCaptureCommand { get; }
         public IRelayCommand KeyDownCommand { get; }
         public IRelayCommand KeyUpCommand { get; }
 
@@ -104,6 +105,7 @@ namespace WPF_MVVM.Views.ImageConverter
                         temp.Add(new ImageConverterItem()
                         {
                             FilePath = array.FileNames[i],
+                            FileName = array.SafeFileNames[i]
                         });
                     }
                     catch (Exception ex)
@@ -119,17 +121,75 @@ namespace WPF_MVVM.Views.ImageConverter
             System.GC.Collect();
             System.GC.WaitForPendingFinalizers();
         }
-        private void ConvertEvent()
+
+        private async Task ConvertEvent(object? data)
         {
-//            ImageConverterItemList.Clear();
-//            _convertAble = ImageConverterItemList.Count > 0;
-//            ConvertCommand.NotifyCanExecuteChanged();
+            if (data is not ListBox listBox)
+            {
+                return;
+            }
+
+            WeakReferenceMessenger.Default.Send(new LoadingMessage(true) { });
+            List<ImageViewUC> list = GetImageList(listBox);
+            list.ForEach(x =>
+            {
+                x.Pause();
+            });
+            List<ImagePixelDataModel> bitmapList = new();
+            list.ForEach(x =>
+            {
+                var temp = x.GetCurrentImage();
+                if (temp != null)
+                {
+                    byte[] pixels = new byte[temp.PixelWidth * temp.PixelHeight * 4];
+                    temp.CopyPixels(pixels, temp.PixelWidth * 4, 0);
+                    bitmapList.Add(new ImagePixelDataModel(pixels, temp.PixelWidth, temp.PixelHeight, temp.DpiX, temp.DpiY, temp.Format, temp.Palette));
+                }
+            });
+            var safeFileNames = list.Select(x =>
+            {
+                if (Path.GetExtension(x.ImageSafeFileName).Length == 0)
+                {
+                    return x.ImageSafeFileName + ".jpg";
+                }
+                else
+                {
+                    return string.Concat(x.ImageSafeFileName.AsSpan(0, x.ImageSafeFileName.Length - 4), ".jpg");
+                }
+            }).ToList();
+
+            await Task.Run(() =>
+            {
+                string path = $@"{FBaseFunc.Ins.Cfg.ImageConvertSaveDirPath}\{DateTime.Now:yyyyMMdd}";
+                DirectoryInfo info = new(path);
+                if (info.Exists == false)
+                {
+                    info.Create();
+                }
+                for (int i = 0; i < bitmapList.Count; i++)
+                {
+                    path = $@"{FBaseFunc.Ins.Cfg.ImageConvertSaveDirPath}\{DateTime.Now:yyyyMMdd}\{safeFileNames[i]}";
+                    path = GetUniqueFilePath(path);
+                    WriteableBitmap bitmap = new(bitmapList[i].Width, bitmapList[i].Height, bitmapList[i].DpiX, bitmapList[i].DpiY, bitmapList[i].Format, bitmapList[i].Palette);
+                    bitmap.WritePixels(new Int32Rect(0, 0, bitmapList[i].Width, bitmapList[i].Height), bitmapList[i].Pixels, bitmapList[i].Width * 4, 0);
+                    JpegBitmapEncoder encoder = new();
+                    encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                    using FileStream fileStream = new(path, FileMode.Create);
+                    encoder.Save(fileStream);
+                }
+
+                WeakReferenceMessenger.Default.Send(new AlertMessage(true) { Header = "Converting", Message = "Comp" });
+                WeakReferenceMessenger.Default.Send(new LoadingMessage(false) { });
+            });
+            //            ImageConverterItemList.Clear();
+            //            _convertAble = ImageConverterItemList.Count > 0;
+            //            ConvertCommand.NotifyCanExecuteChanged();
             System.GC.Collect();
             System.GC.WaitForPendingFinalizers();
         }
         private void MouseWheelEvent(object? data)
         {
-            if (data == null || data is not (ListBox sender, MouseWheelEventArgs e))
+            if (data == null || data is not (ListBox, MouseWheelEventArgs e))
             {
                 return;
             }
@@ -186,19 +246,71 @@ namespace WPF_MVVM.Views.ImageConverter
             }
         }
 
-        private void GetMediaItemCaptureEvent(object? data)
-        {
-            if (data == null || data is not RenderTargetBitmap renderBitmap)
-            {
-                return;
-            }
-
-
-        }
-
-        private bool CanConvert()
+        private bool CanConvert(object? data)
         {
             return _convertAble;
+        }
+
+        private List<ImageViewUC> GetImageList(ListBox listBox)
+        {
+            List<ImageViewUC> ret = new();
+            var listBoxChildCount = VisualTreeHelper.GetChildrenCount(listBox);
+            if (listBox.Items.Count <= 0)
+            {
+                return ret;
+            }
+            if (listBoxChildCount <= 0)
+            {
+                return ret;
+            }
+
+            for (int i = 0; i < listBoxChildCount; i++)
+            {
+                var obj = VisualTreeHelper.GetChild(listBox, i);
+
+                while (obj is not null && obj is not UniformGrid)
+                {
+                    obj = Extensions.GetChild<UniformGrid>(obj);
+                }
+                var uniformGridCount = VisualTreeHelper.GetChildrenCount(obj);
+                for (int j = 0; j < uniformGridCount; j++)
+                {
+                    var imageViewUC = VisualTreeHelper.GetChild(obj, j);
+                    while (imageViewUC is not null && imageViewUC is not ImageViewUC)
+                    {
+                        imageViewUC = Extensions.GetChild<ImageViewUC>(imageViewUC);
+                    }
+
+                    if (imageViewUC is ImageViewUC temp)
+                    {
+                        ret.Add(temp);
+                    }
+                }
+            }
+
+            return ret;
+        }
+        private string GetUniqueFilePath(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                return filePath;
+            }
+
+            var directory = Path.GetDirectoryName(filePath) ?? FBaseFunc.Ins.Cfg.ImageConvertSaveDirPath;
+            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(filePath);
+            string fileExtension = Path.GetExtension(filePath);
+
+            int count = 1;
+            string newFilePath;
+            do
+            {
+                string numberedFileName = $"{fileNameWithoutExtension}_{count}{fileExtension}";
+                newFilePath = Path.Combine(directory, numberedFileName);
+                count++;
+            } while (File.Exists(newFilePath));
+
+            return newFilePath;
         }
     }
 }

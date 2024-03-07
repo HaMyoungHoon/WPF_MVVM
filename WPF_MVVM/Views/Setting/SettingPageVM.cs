@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +24,8 @@ namespace WPF_MVVM.Views.Setting
         private int _selectedNotifyOptionIndex;
         [ObservableProperty]
         private int _notifyDuration;
+        [ObservableProperty]
+        private string _imageConvertSaveDir;
         public SettingPageVM() : base()
         {
             Title = "SETTING";
@@ -30,10 +34,14 @@ namespace WPF_MVVM.Views.Setting
             _isDarkMode = FBaseFunc.Ins.Cfg.IsDarkTheme;
             _notifyOptions = new();
             _selectedNotifyOptionIndex = -1;
+            _imageConvertSaveDir = FBaseFunc.Ins.Cfg.ImageConvertSaveDirPath;
 
             IsDarkModeCommand = new RelayCommand<bool>(IsDarkModeEvent);
             NotifyTestCommand = new RelayCommand(NotifyTestEvent);
             NotifyDurationSaveCommand = new RelayCommand(NotifyDurationSaveDurationEvent);
+
+            ImageConvertSaveDirPathSetCommand = new RelayCommand(ImageConvertSaveDirPathSetEvent);
+            ImageConvertSaveDirPathSaveCommand = new RelayCommand(ImageConvertSaveDirPathSaveEvent);
 
             Init();
         }
@@ -41,6 +49,9 @@ namespace WPF_MVVM.Views.Setting
         public IRelayCommand IsDarkModeCommand { get; }
         public IRelayCommand NotifyTestCommand { get; }
         public IRelayCommand NotifyDurationSaveCommand { get; }
+
+        public IRelayCommand ImageConvertSaveDirPathSetCommand { get; }
+        public IRelayCommand ImageConvertSaveDirPathSaveCommand { get; }
 
         public int SelectedNotifyOptionIndex
         {
@@ -113,6 +124,23 @@ namespace WPF_MVVM.Views.Setting
         {
             FBaseFunc.Ins.Cfg.SetNotifyDuration(NotifyDuration);
             NotifyDuration = FBaseFunc.Ins.Cfg.NotifyDuration;
+        }
+
+        private void ImageConvertSaveDirPathSetEvent()
+        {
+            CommonOpenFileDialog cofd = new()
+            {
+                InitialDirectory = ImageConvertSaveDir,
+                IsFolderPicker = true,
+            };
+            if (cofd.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                ImageConvertSaveDir = cofd.FileName;
+            }
+        }
+        private void ImageConvertSaveDirPathSaveEvent()
+        {
+            FBaseFunc.Ins.Cfg.SetImageConvertSaveDir(ImageConvertSaveDir);
         }
     }
 }

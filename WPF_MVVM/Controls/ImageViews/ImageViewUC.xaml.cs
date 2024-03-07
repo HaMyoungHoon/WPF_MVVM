@@ -29,6 +29,7 @@ namespace WPF_MVVM.Controls.ImageViews
         public static readonly DependencyProperty GifIndexProperty = DependencyProperty.Register(nameof(GifIndex), typeof(int), typeof(ImageViewUC));
         public static readonly DependencyProperty ImageHeightProperty = DependencyProperty.Register(nameof(ImageHeight), typeof(double), typeof(ImageViewUC), new FrameworkPropertyMetadata(100.0, ImageHeightChanged));
         public static readonly DependencyProperty ImageFilePathProperty = DependencyProperty.Register(nameof(ImageFilePath), typeof(string), typeof(ImageViewUC), new FrameworkPropertyMetadata(string.Empty, ImageFilePathChanged));
+        public static readonly DependencyProperty ImageSafeFileNameProperty = DependencyProperty.Register(nameof(ImageSafeFileName), typeof(string), typeof(ImageViewUC));
         public static readonly DependencyProperty GetCaptureMediaCommandProperty = DependencyProperty.Register(nameof(GetCaptureMediaCommand), typeof(object), typeof(ImageViewUC));
         public static readonly DependencyProperty GetCaptureMediaProperty = DependencyProperty.Register(nameof(GetCaptureMedia), typeof(object), typeof(ImageViewUC));
         public static readonly DependencyProperty ErrorCommandProperty = DependencyProperty.Register(nameof(ErrorCommand), typeof(object), typeof(ImageViewUC));
@@ -47,6 +48,11 @@ namespace WPF_MVVM.Controls.ImageViews
         { 
             get => (string)GetValue(ImageFilePathProperty); 
             set => SetValue(ImageFilePathProperty, value);
+        }
+        public string ImageSafeFileName
+        {
+            get => (string)GetValue(ImageSafeFileNameProperty);
+            set => SetValue(ImageSafeFileNameProperty, value);
         }
         public ICommand? GetCaptureMediaCommand
         {
@@ -74,6 +80,7 @@ namespace WPF_MVVM.Controls.ImageViews
         private ImageFileType _imageFileType;
         private MediaState _previousMediaState;
         private DispatcherTimer _timer;
+        private List<BitmapSource> _gifList = new();
 
         public ImageViewUC()
         {
@@ -83,12 +90,23 @@ namespace WPF_MVVM.Controls.ImageViews
             _previousMediaState = MediaState.Close;
             _timer = new();
         }
+        ~ImageViewUC()
+        {
+            _timer.Stop();
+            _gifList.Clear();
+        }
 
+        public void Pause()
+        {
+            _timer.Stop();
+            mediaItem.Pause();
+            btnStartIconPlay();
+        }
         public BitmapSource? GetCurrentImage() => _imageFileType switch
         {
             ImageFileType.WEBP => ImageHelper.GetWebpBitmapSource(ImageFilePath),
             ImageFileType.OTHER => ImageHelper.GetBitmapSource(ImageFilePath),
-            ImageFileType.GIF => ImageHelper.GetCaptureMediaFrame(mediaItem),
+            ImageFileType.GIF => ImageHelper.GetDrawingBitmapSource(ImageFilePath, GifIndex),
             ImageFileType.VIDEO => ImageHelper.GetCaptureMediaFrame(mediaItem),
             _ => null
         };
@@ -124,7 +142,8 @@ namespace WPF_MVVM.Controls.ImageViews
                 fs.Read(header, 0, 12);
             }
 
-            imageViewUC.tbFileName.Text = System.IO.Path.GetFileName(filePath);
+            imageViewUC.ImageSafeFileName = System.IO.Path.GetFileName(filePath);
+            imageViewUC.tbFileName.Text = imageViewUC.ImageSafeFileName;
 
             if (ImageHelper.IsGif(header))
             {
@@ -160,8 +179,6 @@ namespace WPF_MVVM.Controls.ImageViews
             }
 
             imageViewUC.SetImage();
-
-            // 영상은 귀찮으니 나중에
         }
 
         private void btnStartIconPause()
@@ -231,6 +248,7 @@ namespace WPF_MVVM.Controls.ImageViews
                 }
                 mediaItem.Position = TimeSpan.FromSeconds(sliderTimeline.Value);
             }
+            SetTimeLineCount();
         }
         private void sliderTimeline_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -283,6 +301,14 @@ namespace WPF_MVVM.Controls.ImageViews
             _image = ImageHelper.GetDrawingImage(ImageFilePath);
             imgItem.Source = ImageHelper.GetDrawingBitmapSource(ImageFilePath);
             TimerSetting();
+            DrawingGifImages();
+        }
+        private void DrawingGifImages()
+        {
+//            for (int i = 0; i < _gifFrameSize; i++)
+//            {
+//                _gifList.Add(ImageHelper.GetDrawingBitmapSource(_image, i));
+//            }
             _timer.Start();
         }
         private void SetGifImage2()
@@ -332,7 +358,10 @@ namespace WPF_MVVM.Controls.ImageViews
             if (_imageFileType == ImageFileType.VIDEO)
             {
                 var curTime = mediaItem.Position.ToString();
-                curTime = curTime[..curTime.IndexOf('.')];
+                if (curTime.IndexOf('.') > 0)
+                {
+                    curTime = curTime[..curTime.IndexOf('.')];
+                }
                 var totalTime = "??:??:??";
                 if (mediaItem.NaturalDuration.HasTimeSpan)
                 {
@@ -436,13 +465,14 @@ namespace WPF_MVVM.Controls.ImageViews
                         btnStartIconPlay();
                         return;
                     }
-
-                    GifIndex++;
                     _timer.Interval = TimeSpan.FromMilliseconds(ImageHelper.GetGifFrameDelay(ImageFilePath));
                     if (_image != null)
                     {
+//                        imgItem.Source = _gifList[GifIndex];
                         imgItem.Source = ImageHelper.GetDrawingBitmapSource(_image, GifIndex);
                     }
+
+                    GifIndex++;
                     sliderTimeline.Value = GifIndex;
                     SetTimeLineCount();
                 };

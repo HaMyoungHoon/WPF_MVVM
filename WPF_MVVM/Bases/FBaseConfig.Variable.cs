@@ -18,5 +18,7 @@ namespace WPF_MVVM.Bases
         public int NotifyDuration { get; private set; }
         public string[] ImageFilter { get; private set; }
         public string[] VideoFilter { get; private set; }
+
+        public string ImageConvertSaveDirPath { get; private set; }
     }
 }

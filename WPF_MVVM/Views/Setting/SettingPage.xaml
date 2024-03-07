@@ -14,7 +14,11 @@
     </Page.Resources>
 
     <Grid>
-        <StackPanel Orientation="Vertical">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
                 <RadioButton IsChecked="{Binding IsDarkMode, Converter={StaticResource BoolReverseConverter}, Mode=TwoWay}"
                          Command="{Binding IsDarkModeCommand}" CommandParameter="{StaticResource FalseValue}" Content="Light" Foreground="{DynamicResource defFore}" />
@@ -37,6 +41,15 @@
                 <Label Content="notify duration" />
                 <TextBox Text="{Binding NotifyDuration}" Width="50" Foreground="{DynamicResource defFore}" />
                 <Button Content="Save" Command="{Binding NotifyDurationSaveCommand}" />
+            </StackPanel>
+        </StackPanel>
+        <GridSplitter Grid.Row="1" Margin="5" />
+        <StackPanel Grid.Row="1" Orientation="Vertical">
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Image Convert Save Dir" />
+                <TextBlock Text="{Binding ImageConvertSaveDir}" Width="100" d:Text="C:\Temp" VerticalAlignment="Center" />
+                <Button Content="Set" Margin="5, 0" Command="{Binding ImageConvertSaveDirPathSetCommand}" />
+                <Button Content="Save" Command="{Binding ImageConvertSaveDirPathSaveCommand}" />
             </StackPanel>
         </StackPanel>
     </Grid>
