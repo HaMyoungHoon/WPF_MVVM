@@ -1,31 +1,30 @@
 # WPF_MVVM
 
 - Nuget 목록
-  -- CommunityToolkit.Mvvm (Microsoft / MIT License)
-    --- MVVM Support
-  -- System.Drawing.Common (Microsoft / MIT License)
-    --- GDI+ Support
-  -- Microsoft.Xaml.Behaviors.Wpf (Microsoft / MIT License)
-    --- UI Support
-  -- Microsoft.Web.WebView2 (Microsoft / MIT License)
-    --- Web Control
-  -- Microsoft.Extensions.DependencyInjection (Microsoft / MIT License)
-    --- Injection
-  -- DocumentFormat.OpenXml (Microsoft / MIT License)
-    --- Excel Control
-  -- Microsoft.NETCore.UniversalWindowsPlatform (Microsoft / UWP License)
-    ---
-  -- Microsoft.WindowsAPICodePack.Shell (Licshee)
-    ---
-  -- Dirkster.AvalonDock (AvalonDock, Ms-PL License)
-  -- Dirkster.AvalonDock.Themes.Metro
-  -- Dirkster.AvalonDock.Themes.VS2013
-    --- UI Support
-  -- SixLabors.ImageSharp (Apache)
-    --- Image Drawing Support
-  -- FFmpeg.AutoGen (Ruslan Balanukhin / GPL License)
-    --- Video Control
-  -- MaterialDesignThemes (James Willock / MIT License)
-  -- MaterialDesignColors (James Willock / MIT License)
-    -- UI Support
-  
+  - CommunityToolkit.Mvvm (Microsoft / MIT License)
+    - MVVM Support
+  - System.Drawing.Common (Microsoft / MIT License)
+    - GDI+ Support
+  - Microsoft.Xaml.Behaviors.Wpf (Microsoft / MIT License)
+    - UI Support
+  - Microsoft.Web.WebView2 (Microsoft / MIT License)
+    - Web Control
+  - Microsoft.Extensions.DependencyInjection (Microsoft / MIT License)
+    - Injection
+  - DocumentFormat.OpenXml (Microsoft / MIT License)
+    - Excel Control
+  - Microsoft.NETCore.UniversalWindowsPlatform (Microsoft / UWP License)
+    -
+  - Microsoft.WindowsAPICodePack.Shell (Licshee)
+    -
+  - Dirkster.AvalonDock (AvalonDock, Ms-PL License)
+  - Dirkster.AvalonDock.Themes.Metro
+  - Dirkster.AvalonDock.Themes.VS2013
+    - UI Support
+  - SixLabors.ImageSharp (Apache)
+    - Image Drawing Support
+  - FFmpeg.AutoGen (Ruslan Balanukhin / GPL License)
+    - Video Control
+  - MaterialDesignThemes (James Willock / MIT License)
+  - MaterialDesignColors (James Willock / MIT License)
+    - UI Support
