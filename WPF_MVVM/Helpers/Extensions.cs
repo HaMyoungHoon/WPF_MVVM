@@ -46,5 +46,23 @@ namespace WPF_MVVM.Helpers
 
             return child;
         }
+
+        public static EnumValue? GetEnumValue<EnumValue, EnumType>(EnumType enumData) where EnumType : Enum
+        {
+            var enumName = Enum.GetName(typeof(EnumType), enumData);
+
+            if (enumName == null)
+            {
+                return default;
+            }
+
+            if (Enum.TryParse(typeof(EnumType), enumName, true, out object? enumValue))
+            {
+                return (EnumValue)enumValue;
+            }
+
+
+            return default;
+        }
     }
 }

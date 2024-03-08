@@ -2,16 +2,12 @@
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using System;
 using System.Text;
+using WPF_MVVM.Helpers.FFMpeg;
 
 namespace WPF_MVVM.Helpers
 {
     internal static class VideoHelper
     {
-        private static string _ffmpegPath;
-        static VideoHelper()
-        {
-            _ffmpegPath = @"Libs\FFmpeg";
-        }
         public static bool IsMP4(byte[] header)
         {
             var headerString = Encoding.ASCII.GetString(header);
@@ -34,16 +30,16 @@ namespace WPF_MVVM.Helpers
 
         public static TimeSpan GetFFMpegVideoDuration(string path)
         {
-            FFMpegStreamDecoder streamDecoder = new(_ffmpegPath);
-            var ret = streamDecoder.GetVideoDuration(path);
-            streamDecoder.Dispose();
+            FFMpegHelper ffmpegHelper = new();
+            var ret = ffmpegHelper.GetSimpleDuration(path);
+            ffmpegHelper.Dispose();
             return ret;
         }
         public static double GetFFMpegFrameRate(string path)
         {
-            FFMpegStreamDecoder streamDecoder = new(_ffmpegPath);
-            var ret = streamDecoder.GetFrameRate(path);
-            streamDecoder.Dispose();
+            FFMpegHelper ffmpegHelper = new();
+            var ret = ffmpegHelper.GetSimpleVideoFrameRate(path);
+            ffmpegHelper.Dispose();
             return ret;
         }
         public static TimeSpan GetShellParseVideoDuration(string path)

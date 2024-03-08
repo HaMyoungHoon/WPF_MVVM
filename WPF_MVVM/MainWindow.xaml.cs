@@ -1,17 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace WPF_MVVM
 {
@@ -24,6 +12,10 @@ namespace WPF_MVVM
         {
             InitializeComponent();
             DataContext = App.Current.Services.GetService(typeof(MainWindowVM));
+//            var temp = new FFMpegHelper();
+//            temp.GetSimpleVideoSet(@"C:\\Users\\basic\\Downloads\\mp4_sample1.mp4");
+//            var read = temp.GetSimpleVideoFrameData();
+//            temp.Dispose();
         }
         protected override void OnSourceInitialized(EventArgs e)
         {
