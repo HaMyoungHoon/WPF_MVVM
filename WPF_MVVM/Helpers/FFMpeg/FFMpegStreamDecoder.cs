@@ -81,6 +81,31 @@ namespace WPF_MVVM.Helpers.FFMpeg
             }
         }
 
+        public unsafe bool GetFrame(AVCodecContext* codecContext, AVFrame* frame, AVPacket* packet)
+        {
+            int ret = ffmpeg.avcodec_send_packet(codecContext, packet);
+            if (ret < 0)
+            {
+                return false;
+            }
+
+            while (ret >= 0)
+            {
+                ret = ffmpeg.avcodec_receive_frame(codecContext, frame);
+                if (ret == ffmpeg.AVERROR(ffmpeg.EAGAIN) || ret == ffmpeg.AVERROR_EOF)
+                {
+                    return true;
+                }
+
+                if (ret < 0)
+                {
+                    return false;
+                }
+
+            }
+
+            return true;
+        }
         public unsafe AVFrame* GetFrame(AVCodecContext* codecContext, AVPacket* packet, AVPixelFormat avPixelFormat)
         {
             AVFrame* frame = null;

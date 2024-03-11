@@ -1,5 +1,9 @@
-﻿using System;
+﻿using FFmpeg.AutoGen;
+using System;
+using System.IO;
+using System.Text;
 using System.Windows;
+using WPF_MVVM.Helpers.FFMpeg;
 
 namespace WPF_MVVM
 {
@@ -12,10 +16,10 @@ namespace WPF_MVVM
         {
             InitializeComponent();
             DataContext = App.Current.Services.GetService(typeof(MainWindowVM));
-//            var temp = new FFMpegHelper();
-//            temp.GetSimpleVideoSet(@"C:\\Users\\basic\\Downloads\\mp4_sample1.mp4");
+            var temp = new FFMpegHelper();
+//            temp.GetSimpleHWVideoSet(@"C:\\Users\\basic\\Downloads\\mp4_sample1.mp4");
 //            var read = temp.GetSimpleVideoFrameData();
-//            temp.Dispose();
+            temp.Dispose();
         }
         protected override void OnSourceInitialized(EventArgs e)
         {

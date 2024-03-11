@@ -1,9 +1,12 @@
 ﻿using FFmpeg.AutoGen;
+using Microsoft.Win32.SafeHandles;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WPF_MVVM.Libs;
 
 namespace WPF_MVVM.Helpers.FFMpeg
 {
@@ -17,10 +20,13 @@ namespace WPF_MVVM.Helpers.FFMpeg
         private AVPixelFormat _pixelFormat;
         private AVHWDeviceType _hwDeviceType;
         private AVCodecContext* _codecContext;
+        private BinaryReader _reader;
         private readonly AVBufferRef* _bufferRef;
         private readonly AVFrame* _frame;
         private readonly AVPacket* _packet;
         private readonly AVFormatContext* _formatContext;
+
+        private const int BUFF_SIZE = 4096;
 
         public FFMpegHelper()
         {
@@ -37,10 +43,8 @@ namespace WPF_MVVM.Helpers.FFMpeg
 
             _pixelFormat = AVPixelFormat.AV_PIX_FMT_NONE;
             _hwDeviceType = AVHWDeviceType.AV_HWDEVICE_TYPE_NONE;
-            _formatContext = ffmpeg.avformat_alloc_context();
 
-            _frame = ffmpeg.av_frame_alloc();
-            _packet = ffmpeg.av_packet_alloc();
+            _reader = new(Stream.Null);
         }
 
         public FFMpegStreamDecoder StreamDecoder { get; private set; }
@@ -96,6 +100,109 @@ namespace WPF_MVVM.Helpers.FFMpeg
 
         public unsafe void GetSimpleVideoSet(string path)
         {
+            int ret = 0;
+            this.Dispose();
+            _reader = new(new FileStream(path, FileMode.Open));
+
+            fixed (AVPacket** packet = &_packet)
+            {
+                *packet = ffmpeg.av_packet_alloc();
+            }
+
+            AVCodec* codec;
+            fixed (AVFormatContext** formatContext = &_formatContext)
+            {
+                StreamDecoder.OpenVideoFile(path, formatContext);
+            }
+            ffmpeg.av_find_best_stream(_formatContext, AVMediaType.AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0);
+            if (codec == null)
+            {
+                return;
+            }
+
+            fixed (AVCodecContext** codecContext = &_codecContext)
+            {
+                *codecContext = ffmpeg.avcodec_alloc_context3(codec);
+                if (_codecContext == null)
+                {
+                    return;
+                }
+            }
+
+            ret = ffmpeg.avcodec_open2(_codecContext, codec, null);
+            if (ret < 0)
+            {
+                return;
+            }
+
+            fixed (AVFrame** frame = &_frame)
+            {
+                *frame = ffmpeg.av_frame_alloc();
+            }
+        }
+        public unsafe byte[] GetSimpleVideoFrameData()
+        {
+            if (_codecContext == null)
+            {
+                return Array.Empty<byte>();
+            }
+            if (_packet == null)
+            {
+                return Array.Empty<byte>();
+            }
+            if (_frame == null)
+            {
+                return Array.Empty<byte>();
+            }
+
+            int ret = 0;
+            var buff = new byte[BUFF_SIZE + ffmpeg.AV_INPUT_BUFFER_PADDING_SIZE];
+            AVCodecParserContext* parser = ffmpeg.av_parser_init(Extensions.GetEnumValue<int, AVCodecID>(_codecContext->codec->id));
+
+            var parseRet = true;
+            while (parseRet)
+            {
+                var dataSize = _reader.Read(buff, 0, BUFF_SIZE);
+                if (dataSize == 0)
+                {
+                    return Array.Empty<byte>();
+                }
+
+                fixed (byte* buffPtr = buff)
+                {
+                    byte* buffPtrData = buffPtr;
+                    while (dataSize > 0)
+                    {
+                        ret = ffmpeg.av_parser_parse2(parser, _codecContext, &_packet->data, &_packet->size, buffPtrData, dataSize, ffmpeg.AV_NOPTS_VALUE, ffmpeg.AV_NOPTS_VALUE, 0);
+                        if (ret < 0)
+                        {
+                            break;
+                        }
+
+                        buffPtrData += ret;
+                        dataSize -= ret;
+
+                        if (_packet->size != 0)
+                        {
+                            parseRet = StreamDecoder.GetFrame(_codecContext, _frame, _packet);
+                            if (parseRet == false)
+                            {
+                                break;
+                            }
+
+                            return StreamDecoder.GetFrame(_frame);
+                        }
+                    }
+                }
+            }
+
+            ffmpeg.av_parser_close(parser);
+
+            return Array.Empty<byte>();
+        }
+        public unsafe void GetSimpleHWVideoSet(string path, AVHWDeviceType deviceType = AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA)
+        {
+            this.Dispose();
             fixed (AVFormatContext** formatContext = &_formatContext)
             {
                 StreamDecoder.OpenVideoFile(path, formatContext);
@@ -103,7 +210,6 @@ namespace WPF_MVVM.Helpers.FFMpeg
 
             InitStreamIndex(_formatContext);
 
-            AVHWDeviceType deviceType = AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA;
             AVCodec* codec;
             var videoStreamIndex = ffmpeg.av_find_best_stream(_formatContext, AVMediaType.AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0);
             if (videoStreamIndex < 0)
@@ -140,12 +246,24 @@ namespace WPF_MVVM.Helpers.FFMpeg
                 _codecContext->get_format = (AVCodecContext_get_format_func)GetHWFormat;
                 CodecDecoderInit(_codecContext, deviceType);
             }
+
+            fixed(AVFrame** frame = &_frame)
+            {
+                *frame = ffmpeg.av_frame_alloc();
+            }
+            fixed(AVPacket** packet = &_packet)
+            {
+                *packet = ffmpeg.av_packet_alloc();
+            }
         }
-        public unsafe byte[] GetSimpleVideoFrameData()
+        public unsafe byte[] GetSimpleHWVideoFrameData()
         {
             int ret = 0;
-            int i = 0;
-            int j = 0;
+            if (CheckSetVideo() == false)
+            {
+                return Array.Empty<byte>();
+            }
+
             while (ret >= 0)
             {
                 ret = ffmpeg.av_read_frame(_formatContext, _packet);
@@ -168,6 +286,31 @@ namespace WPF_MVVM.Helpers.FFMpeg
             }
 
             return Array.Empty<byte>();
+        }
+        public bool CheckSetVideo()
+        {
+            if (_formatContext == null)
+            {
+                return false;
+            }
+            if (_packet == null)
+            {
+                return false;
+            }
+            if (_codecContext == null)
+            {
+                return false;
+            }
+            if (_pixelFormat == AVPixelFormat.AV_PIX_FMT_NONE)
+            {
+                return false;
+            }
+            if (SelectVideoStreamIndex == -1)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public bool IsSupportDeviceType(AVHWDeviceType deviceType, out string error)
@@ -263,17 +406,11 @@ namespace WPF_MVVM.Helpers.FFMpeg
                 }
             }
 
-//            if (_formatContext != null)
-//            {
-//                var formatContext = _formatContext;
-//                ffmpeg.avformat_close_input(&formatContext);
-//            }
-
             if (_bufferRef != null)
             {
                 var buffer = _bufferRef;
                 ffmpeg.av_buffer_unref(&buffer);
-                ffmpeg.av_free(_bufferRef);
+//                ffmpeg.av_free(_bufferRef);
             }
 
             if (_formatContext != null)
@@ -281,6 +418,8 @@ namespace WPF_MVVM.Helpers.FFMpeg
                 var formatContext = _formatContext;
                 ffmpeg.avformat_close_input(&formatContext);
             }
+
+            _reader.Dispose();
 
             StreamDecoder.Dispose();
         }
