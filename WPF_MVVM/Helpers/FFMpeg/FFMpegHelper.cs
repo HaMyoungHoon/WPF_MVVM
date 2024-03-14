@@ -1,4 +1,5 @@
-﻿using FFmpeg.AutoGen;
+﻿using DocumentFormat.OpenXml.Drawing;
+using FFmpeg.AutoGen;
 using Microsoft.Win32.SafeHandles;
 using System;
 using System.Collections.Generic;
@@ -142,15 +143,7 @@ namespace WPF_MVVM.Helpers.FFMpeg
         }
         public unsafe byte[] GetSimpleVideoFrameData()
         {
-            if (_codecContext == null)
-            {
-                return Array.Empty<byte>();
-            }
-            if (_packet == null)
-            {
-                return Array.Empty<byte>();
-            }
-            if (_frame == null)
+            if (CheckSetVideo())
             {
                 return Array.Empty<byte>();
             }
@@ -190,7 +183,7 @@ namespace WPF_MVVM.Helpers.FFMpeg
                                 break;
                             }
 
-                            return StreamDecoder.GetFrame(_frame);
+                            return StreamDecoder.GetFrameToByteArray(_frame);
                         }
                     }
                 }
@@ -256,12 +249,12 @@ namespace WPF_MVVM.Helpers.FFMpeg
                 *packet = ffmpeg.av_packet_alloc();
             }
         }
-        public unsafe byte[] GetSimpleHWVideoFrameData()
+        public unsafe AVFrame* GetSimpleHWVideoFrame()
         {
             int ret = 0;
-            if (CheckSetVideo() == false)
+            if (CheckSetHWVideo() == false)
             {
-                return Array.Empty<byte>();
+                return null;
             }
 
             while (ret >= 0)
@@ -270,7 +263,32 @@ namespace WPF_MVVM.Helpers.FFMpeg
                 if (ret < 0)
                 {
                     StreamDecoder.GetFrame(_codecContext, null, _pixelFormat);
-                    return Array.Empty<byte>();
+                    return null;
+                }
+
+                if (SelectVideoStreamIndex == _packet->stream_index)
+                {
+                    return StreamDecoder.GetFrame(_codecContext, _packet, _pixelFormat);
+                }
+            }
+
+            return null;
+        }
+        public unsafe OpenCvSharp.Mat GetSimpleHWVideoFrameData()
+        {
+            int ret = 0;
+            if (CheckSetHWVideo() == false)
+            {
+                return new OpenCvSharp.Mat();
+            }
+
+            while (ret >= 0)
+            {
+                ret = ffmpeg.av_read_frame(_formatContext, _packet);
+                if (ret < 0)
+                {
+                    StreamDecoder.GetFrame(_codecContext, null, _pixelFormat);
+                    return new OpenCvSharp.Mat();
                 }
 
                 if (SelectVideoStreamIndex == _packet->stream_index)
@@ -281,13 +299,35 @@ namespace WPF_MVVM.Helpers.FFMpeg
                         continue;
                     }
 
-                    return StreamDecoder.GetFrame(frame);
+                    var buffer = StreamDecoder.GetFrameToBytePtr(frame);
+                    OpenCvSharp.Mat rgbMat = new();
+                    OpenCvSharp.Mat nvMat = new(frame->height * 3 / 2, frame->width, OpenCvSharp.MatType.CV_8UC1, new IntPtr(buffer));
+                    OpenCvSharp.Cv2.CvtColor(nvMat, rgbMat, OpenCvSharp.ColorConversionCodes.YUV2BGR_NV12);
+                    ffmpeg.av_freep(&buffer);
+                    return rgbMat;
                 }
             }
 
-            return Array.Empty<byte>();
+            return new OpenCvSharp.Mat();
         }
         public bool CheckSetVideo()
+        {
+            if (_codecContext == null)
+            {
+                return false;
+            }
+            if (_packet == null)
+            {
+                return false;
+            }
+            if (_frame == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+        public bool CheckSetHWVideo()
         {
             if (_formatContext == null)
             {

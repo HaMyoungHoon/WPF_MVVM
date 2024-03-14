@@ -12,14 +12,15 @@ namespace WPF_MVVM
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        public unsafe MainWindow()
         {
             InitializeComponent();
             DataContext = App.Current.Services.GetService(typeof(MainWindowVM));
-            var temp = new FFMpegHelper();
+//            var temp = new FFMpegHelper();
 //            temp.GetSimpleHWVideoSet(@"C:\\Users\\basic\\Downloads\\mp4_sample1.mp4");
-//            var read = temp.GetSimpleVideoFrameData();
-            temp.Dispose();
+//            var read = temp.GetSimpleHWVideoFrameData();
+//            OpenCvSharp.Cv2.ImShow("test", read);
+//            temp.Dispose();
         }
         protected override void OnSourceInitialized(EventArgs e)
         {

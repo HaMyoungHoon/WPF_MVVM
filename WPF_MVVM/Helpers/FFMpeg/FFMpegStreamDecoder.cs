@@ -170,7 +170,31 @@ namespace WPF_MVVM.Helpers.FFMpeg
             }
         }
 
-        public unsafe byte[] GetFrame(AVFrame* frame)
+        public unsafe byte* GetFrameToBytePtr(AVFrame* frame)
+        {
+            var size = ffmpeg.av_image_get_buffer_size((AVPixelFormat)frame->format, frame->width, frame->height, 1);
+            byte* buffer = (byte*)ffmpeg.av_malloc((ulong)size);
+            if (buffer == null)
+            {
+                //                throw new Exception("i think memory shortage");
+                ffmpeg.av_frame_free(&frame);
+                return null;
+            }
+
+            byte_ptrArray4* frameData = (byte_ptrArray4*)&frame->data;
+            int_array4* lineSize = (int_array4*)&frame->linesize;
+            var ret = ffmpeg.av_image_copy_to_buffer(buffer, size, *frameData, *lineSize, (AVPixelFormat)frame->format, frame->width, frame->height, 1);
+            if (ret < 0)
+            {
+                //                throw new Exception("buffer copy error");
+                ffmpeg.av_frame_free(&frame);
+                ffmpeg.av_freep(&buffer);
+                return null;
+            }
+
+            return buffer;
+        }
+        public unsafe byte[] GetFrameToByteArray(AVFrame* frame)
         {
             var size = ffmpeg.av_image_get_buffer_size((AVPixelFormat)frame->format, frame->width, frame->height, 1);
             byte* buffer = (byte*)ffmpeg.av_malloc((ulong)size);
