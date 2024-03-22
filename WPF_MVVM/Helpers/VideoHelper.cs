@@ -11,7 +11,7 @@ namespace WPF_MVVM.Helpers
         public static bool IsMP4(byte[] header)
         {
             var headerString = Encoding.ASCII.GetString(header);
-            return headerString.StartsWith("\0\0\0\u0018ftyp") || headerString.EndsWith("\0\0\0\u00020ftyp");
+            return headerString.StartsWith("\0\0\0\u0018ftyp") || headerString.EndsWith("\0\0\0\u00020ftyp") || headerString.StartsWith("\0\0\0 ftypisom");
         }
         public static bool IsAVI(byte[] header)
         {

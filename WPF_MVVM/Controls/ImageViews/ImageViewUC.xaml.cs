@@ -1,6 +1,7 @@
 ﻿using MaterialDesignThemes.Wpf;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,7 +25,7 @@ namespace WPF_MVVM.Controls.ImageViews
     /// <summary>
     /// ImageViewUC.xaml에 대한 상호 작용 논리
     /// </summary>
-    public partial class ImageViewUC : UserControl
+    public partial class ImageViewUC : UserControl, IDisposable
     {
         public static readonly DependencyProperty GifIndexProperty = DependencyProperty.Register(nameof(GifIndex), typeof(int), typeof(ImageViewUC));
         public static readonly DependencyProperty ImageHeightProperty = DependencyProperty.Register(nameof(ImageHeight), typeof(double), typeof(ImageViewUC), new FrameworkPropertyMetadata(100.0, ImageHeightChanged));
@@ -92,8 +93,7 @@ namespace WPF_MVVM.Controls.ImageViews
         }
         ~ImageViewUC()
         {
-            _timer.Stop();
-            _gifList.Clear();
+            Close();
         }
 
         public void Pause()
@@ -133,6 +133,7 @@ namespace WPF_MVVM.Controls.ImageViews
             }
             if (e.NewValue == null || e.NewValue is not string filePath)
             {
+                imageViewUC.Close();
                 return;
             }
 
@@ -501,6 +502,33 @@ namespace WPF_MVVM.Controls.ImageViews
                     SetTimeLineCount();
                 };
             }
+        }
+        private void Close()
+        {
+            _timer.Stop();
+            _image = null;
+            _gifList.Clear();
+            try
+            {
+                mediaItem.Close();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"mediaItem Close : {ex.Message}");
+            }
+            try
+            {
+                imgItem.Source = null;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"imgItem Source null : {ex.Message}");
+            }
+        }
+
+        public void Dispose()
+        {
+            Close();
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Windows.Media;
 
 namespace WPF_MVVM.Bases
 {
-    internal partial class PaneViewModel : ViewModelBase
+    internal partial class PaneViewModel : ViewModelBase, IDisposable
     {
         [ObservableProperty]
         protected object? _mother;
@@ -78,6 +79,10 @@ namespace WPF_MVVM.Bases
         {
         }
         protected virtual void MoveToPreviousTabGroupEvent(object? data)
+        {
+        }
+
+        public virtual void Dispose()
         {
         }
     }

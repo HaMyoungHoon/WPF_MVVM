@@ -124,6 +124,7 @@ namespace WPF_MVVM
 
             if (msg.Close && msg.Sender is PaneDocumentViewModel doc)
             {
+                doc.Dispose();
                 DockItemList.Remove(doc);
                 if (DockItemList.Count > 0)
                 {

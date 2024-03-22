@@ -87,6 +87,12 @@ namespace WPF_MVVM.Views.ImageConverter
             };
             if (ofd.ShowDialog() == true)
             {
+                foreach (var list in ImageConverterItemList)
+                {
+                    list.FilePath = null;
+                }
+                OnPropertyChanged(nameof(ImageConverterItemList));
+                ImageConverterItemList.Clear();
                 var array = (ofd.FileNames, ofd.SafeFileNames);
                 if (array.FileNames.Length < 3)
                 {
@@ -311,6 +317,15 @@ namespace WPF_MVVM.Views.ImageConverter
             } while (File.Exists(newFilePath));
 
             return newFilePath;
+        }
+
+        public override void Dispose()
+        {
+            foreach (var list in ImageConverterItemList)
+            {
+                list.Dispose();
+            }
+            ImageConverterItemList.Clear();
         }
     }
 }

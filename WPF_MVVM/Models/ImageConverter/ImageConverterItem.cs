@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,9 +8,15 @@ using System.Windows.Media.Imaging;
 
 namespace WPF_MVVM.Models.ImageConverter
 {
-    internal class ImageConverterItem
+    internal partial class ImageConverterItem : ObservableObject, IDisposable
     {
-        public string? FilePath { get; set; }
+        [ObservableProperty]
+        private string? _filePath;
         public string? FileName { get; set; }
+
+        public void Dispose()
+        {
+            FilePath = null;
+        }
     }
 }
